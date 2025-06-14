@@ -39,6 +39,10 @@ final class SessionManager: ObservableObject {
             DispatchQueue.main.async {
                 self.currentUser = user
                 self.isAuthenticated = true
+                
+                print("isAuthenticated: \(self.isAuthenticated)")
+                print("currentUser: \(String(describing: self.currentUser))")
+
             }
         }
     }

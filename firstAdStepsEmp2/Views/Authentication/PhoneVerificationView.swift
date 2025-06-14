@@ -7,6 +7,7 @@ struct PhoneVerificationView: View {
     @State private var phoneNumber = ""
     @State private var selectedCountry = Country(code: "+90", name: "Türkiye", flag: "🇹🇷")
     @State private var showCountryPicker = false
+    @State private var isPhoneValid = false
     @State private var isShowingKvkk = false
     @State private var isShowingTerms = false
     @State private var isKvkkAccepted = false
@@ -15,12 +16,27 @@ struct PhoneVerificationView: View {
     @State private var showError = false
     @State private var errorMessage: String?
     @State private var isLoading = false
-    
+    @FocusState private var isPhoneFieldFocused: Bool
+
     private let countries = [
         Country(code: "+90", name: "Türkiye", flag: "🇹🇷"),
         Country(code: "+49", name: "Almanya", flag: "🇩🇪"),
         Country(code: "+44", name: "İngiltere", flag: "🇬🇧")
     ]
+    
+    private var isFormValid: Bool {
+        isPhoneValid && isKvkkAccepted && isTermsAccepted
+    }
+    
+    private func validatePhoneNumber(_ number: String) {
+        let digits = number.filter { $0.isNumber }
+        // Türkiye için özel format kontrolü
+        if selectedCountry.code == "+90" {
+            isPhoneValid = digits.count == 10 && digits.first == "5"
+        } else {
+            isPhoneValid = digits.count == 10
+        }
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -72,6 +88,10 @@ struct PhoneVerificationView: View {
                                 .padding(.horizontal, 12)
                                 .frame(height: 52)
                                 .background(Color.clear)
+                                .focused($isPhoneFieldFocused)
+                                .onChange(of: phoneNumber) { _, newValue in
+                                    validatePhoneNumber(newValue)
+                                }
                         }
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
@@ -119,39 +139,52 @@ struct PhoneVerificationView: View {
                         }
                         
                         // Devam Et Butonu
-                        Button(action: {
-                            viewModel.requestOTP(
-                                phoneNumber: phoneNumber,
-                                countryCode: selectedCountry.code
-                            ) { result in
-                                switch result {
-                                case .success(let data):
-                                    navigationManager.goToOTPVerification(
-                                        phoneNumber: phoneNumber,
-                                        countryCode: selectedCountry.code,
-                                        otpRequestId: data.otpRequestId
-                                    )
-                                case .failure:
-                                    // Error is handled in ViewModel and shown via errorMessage
-                                    break
-                                }
-                            }
-                        }) {
-                            if viewModel.isLoading {
+                        if viewModel.isLoading {
+                            HStack {
+                                Text("Gönderiliyor..")
                                 ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            } else {
+                                    .progressViewStyle(CircularProgressViewStyle(tint: Theme.purple400))
+                            }
+                            .font(.headline)
+                            .foregroundColor(Theme.purple400)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 52)
+                            .background(isFormValid ? Theme.gray300 : Theme.purple400)
+                            .cornerRadius(12)
+                        } else {
+                            Button(action: {
+                                if isFormValid {
+                                    viewModel.requestOTP(
+                                        phoneNumber: phoneNumber,
+                                        countryCode: selectedCountry.code
+                                    ) { result in
+                                        switch result {
+                                        case .success(let data):
+                                            navigationManager.goToOTPVerification(
+                                                phoneNumber: phoneNumber,
+                                                countryCode: selectedCountry.code,
+                                                otpRequestId: data.otpRequestId
+                                            )
+                                        case .failure:
+                                            // Error is handled in ViewModel and shown via errorMessage
+                                            break
+                                        }
+                                    }
+                                }
+                            }) {
+                                
                                 Text("Devam Et")
                                     .font(.headline)
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 52)
-                                    .background(phoneNumber.isEmpty ? Theme.gray300 : Theme.purple400)
+                                    .background(isFormValid ? Theme.purple400 : Theme.gray300)
                                     .cornerRadius(12)
+                                
                             }
+                            .disabled(!isFormValid)
                         }
-                        .disabled(phoneNumber.isEmpty || viewModel.isLoading)
-                        
+
                         if let errorMessage = viewModel.errorMessage {
                             Text(errorMessage)
                                 .foregroundColor(.red)
@@ -173,8 +206,10 @@ struct PhoneVerificationView: View {
                 .scrollDismissesKeyboard(.interactively)
                 .contentShape(Rectangle())
             }
+            
         }
-        .ignoresSafeArea()
+        // .ignoresSafeArea()
+        .ignoresSafeArea(.keyboard)
         .alert("Hata", isPresented: $showError) {
             Button("Tamam", role: .cancel) { }
         } message: {
@@ -184,6 +219,9 @@ struct PhoneVerificationView: View {
         .navigationBarHidden(true)
         .onAppear {
             // ... existing code ...
+        }
+        .onTapGesture {
+            isPhoneFieldFocused = false
         }
     }
 }

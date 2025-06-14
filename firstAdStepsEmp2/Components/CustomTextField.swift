@@ -16,6 +16,8 @@ struct CustomTextField: View {
                 .accentColor(.black)
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
+                .padding(.vertical, 0)
+                .frame(height: 52)
             
         }
         .padding(.horizontal, 16)

@@ -15,11 +15,13 @@ class AuthViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
+        /*
         defer {
             DispatchQueue.main.async {
                 self.isLoading = false
             }
         }
+         */
         
         authService.requestOTP(
             phoneNumber: phoneNumber, 
@@ -28,6 +30,9 @@ class AuthViewModel: ObservableObject {
             guard let self = self else { return }
             
             DispatchQueue.main.async {
+
+                self.isLoading = false
+                
                 switch result {
                 case .success(let response):
                     if response.status == "success",
@@ -77,6 +82,9 @@ class AuthViewModel: ObservableObject {
                 switch result {
                 case .success(let response):
                     if response.status == "success", let data = response.data {
+                        if let user = data.user, data.isUserExist == true {
+                            SessionManager.shared.setUser(user)
+                        }
                         completion(.success(data))
                     } else if let error = response.error {
                         self.errorMessage = error.message

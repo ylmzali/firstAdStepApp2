@@ -9,7 +9,7 @@ struct OTPView: View {
     let otpRequestId: String
     
     @State private var otpCode = ""
-    @State private var timeRemaining = 300 // 5 minutes
+    @State private var timeRemaining = 120 // 2 minutes
     @State private var timer: Timer?
     @State private var errorMessage: String?
     
@@ -36,11 +36,15 @@ struct OTPView: View {
                 .keyboardType(.numberPad)
                 .multilineTextAlignment(.center)
                 .font(.title2)
-                .padding()
+                .frame(height: 50)
                 .frame(maxWidth: .infinity)
                 .background(Color.white)
                 .cornerRadius(10)
-                .padding(.horizontal)
+                .padding(.horizontal, 40)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Theme.purple400.opacity(0.3), lineWidth: 1)
+                )
                 .onChange(of: otpCode) { newValue in
                     // Sadece rakam girişine izin ver
                     let filtered = newValue.filter { $0.isNumber }
@@ -54,12 +58,30 @@ struct OTPView: View {
                     }
                 }
 
+            
+            
             if timeRemaining > 0 {
                 Text("Kalan süre: \(timeRemaining / 60):\(String(format: "%02d", timeRemaining % 60))")
                     .foregroundColor(.gray)
             } else {
                 Button("Kodu Tekrar Gönder") {
-                    // TODO: Implement resend OTP
+                    viewModel.requestOTP(
+                        phoneNumber: phoneNumber,
+                        countryCode: countryCode
+                    ) { result in
+                        switch result {
+                        case .success(let data):
+                            navigationManager.goToOTPVerification(
+                                phoneNumber: phoneNumber,
+                                countryCode: countryCode,
+                                otpRequestId: data.otpRequestId
+                            )
+                        case .failure:
+                            // Error is handled in ViewModel and shown via errorMessage
+                            break
+                        }
+                    }
+                    
                 }
                 .foregroundColor(.blue)
             }
@@ -113,6 +135,11 @@ struct OTPView: View {
         }
         .onDisappear {
             timer?.invalidate()
+        }
+        .overlay {
+            if viewModel.isLoading {
+                LoadingView()
+            }
         }
     }
     
