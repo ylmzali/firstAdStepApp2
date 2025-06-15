@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C100045E2DFE428D003D5C86 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C100045C2DFE428D003D5C86 /* ProfileView.swift */; };
+		C10004622DFE438D003D5C86 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10004612DFE438D003D5C86 /* MainView.swift */; };
+		C10004642DFE4C92003D5C86 /* OrdersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10004632DFE4C92003D5C86 /* OrdersView.swift */; };
+		C10004662DFE4E00003D5C86 /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10004652DFE4E00003D5C86 /* NotificationsView.swift */; };
 		C13B94112DFC614E007BC349 /* firstAdStepsEmp2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B94102DFC614E007BC349 /* firstAdStepsEmp2App.swift */; };
 		C13B94132DFC614E007BC349 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B94122DFC614E007BC349 /* ContentView.swift */; };
 		C13B94152DFC6150007BC349 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C13B94142DFC6150007BC349 /* Assets.xcassets */; };
@@ -62,6 +66,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C100045C2DFE428D003D5C86 /* ProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		C10004612DFE438D003D5C86 /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		C10004632DFE4C92003D5C86 /* OrdersView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrdersView.swift; sourceTree = "<group>"; };
+		C10004652DFE4E00003D5C86 /* NotificationsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
 		C13B940D2DFC614E007BC349 /* firstAdStepsEmp2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = firstAdStepsEmp2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C13B94102DFC614E007BC349 /* firstAdStepsEmp2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = firstAdStepsEmp2App.swift; sourceTree = "<group>"; };
 		C13B94122DFC614E007BC349 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -128,6 +136,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C100045D2DFE428D003D5C86 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				C100045C2DFE428D003D5C86 /* ProfileView.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
 		C13B94042DFC614E007BC349 = {
 			isa = PBXGroup;
 			children = (
@@ -250,6 +266,7 @@
 			children = (
 				C13B945B2DFC631C007BC349 /* Authentication */,
 				C13B94772DFC83A8007BC349 /* Home */,
+				C100045D2DFE428D003D5C86 /* Profile */,
 				C13B94822DFC8765007BC349 /* Common */,
 				C13B94742DFC8267007BC349 /* RootView.swift */,
 				C13B94702DFC7080007BC349 /* SplashView.swift */,
@@ -280,7 +297,10 @@
 		C13B94772DFC83A8007BC349 /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				C10004612DFE438D003D5C86 /* MainView.swift */,
 				C13B94762DFC83A8007BC349 /* HomeView.swift */,
+				C10004652DFE4E00003D5C86 /* NotificationsView.swift */,
+				C10004632DFE4C92003D5C86 /* OrdersView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -438,6 +458,7 @@
 				C13B94492DFC623F007BC349 /* Log.swift in Sources */,
 				C13B94832DFC8765007BC349 /* ErrorView.swift in Sources */,
 				C13B946B2DFC6FE3007BC349 /* AppDelegate.swift in Sources */,
+				C10004662DFE4E00003D5C86 /* NotificationsView.swift in Sources */,
 				C13B94692DFC6CC2007BC349 /* SessionManager.swift in Sources */,
 				C13B94752DFC8267007BC349 /* RootView.swift in Sources */,
 				C13B948D2DFDAFA5007BC349 /* ErrorResponse.swift in Sources */,
@@ -445,12 +466,15 @@
 				C13B944B2DFC623F007BC349 /* Enums.swift in Sources */,
 				C13B94712DFC7080007BC349 /* SplashView.swift in Sources */,
 				C13B94132DFC614E007BC349 /* ContentView.swift in Sources */,
+				C10004642DFE4C92003D5C86 /* OrdersView.swift in Sources */,
 				C13B94112DFC614E007BC349 /* firstAdStepsEmp2App.swift in Sources */,
+				C100045E2DFE428D003D5C86 /* ProfileView.swift in Sources */,
 				C13B94642DFC6471007BC349 /* Helpers.swift in Sources */,
 				C13B947E2DFC865A007BC349 /* ServiceError.swift in Sources */,
 				C13B94512DFC62D4007BC349 /* AntDesign.swift in Sources */,
 				C13B94892DFCC5C9007BC349 /* AuthViewModel.swift in Sources */,
 				C13B94672DFC6CB0007BC349 /* AuthService.swift in Sources */,
+				C10004622DFE438D003D5C86 /* MainView.swift in Sources */,
 				C13B947A2DFC85D4007BC349 /* AppStateManager.swift in Sources */,
 				C13B94852DFCC58A007BC349 /* APIResponse.swift in Sources */,
 			);
