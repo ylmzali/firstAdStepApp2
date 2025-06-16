@@ -82,3 +82,51 @@ struct OTPRegisterError: Codable {
     let message: String
     let details: String
 }
+
+
+
+// ROUTE GET
+struct RouteGetResponse: Codable {
+    let status: String
+    let data: RouteGetData?
+    let error: RouteGetError?
+}
+struct RouteGetData: Codable {
+    let issetRoute: Bool?
+    let route: Route?
+}
+struct RouteGetError: Codable {
+    let code: String
+    let message: String
+    let details: String
+}
+// ROUTES GET
+struct RoutesGetResponse: Codable {
+    let status: String
+    let data: RoutesGetData?
+    let error: RoutesGetError?
+}
+struct RoutesGetData: Codable {
+    let issetRoutes: Bool?
+    let routes: [Route]?
+}
+struct RoutesGetError: Codable {
+    let code: String
+    let message: String
+    let details: String
+}
+// ROUTE CREATE
+struct RouteCreateResponse: Codable {
+    let status: String
+    let data: RouteCreateData?
+    let error: RouteCreateError?
+}
+struct RouteCreateData: Codable {
+    let isRouteCreated: Bool?
+    let route: Route?
+}
+struct RouteCreateError: Codable {
+    let code: String
+    let message: String
+    let details: String
+}

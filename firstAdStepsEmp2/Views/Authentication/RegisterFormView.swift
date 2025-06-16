@@ -67,7 +67,7 @@ struct RegisterFormView: View {
                         }
                     }
                 }) {
-                    if viewModel.isLoading {
+                    if SessionManager.shared.isLoading {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     } else {
@@ -81,9 +81,9 @@ struct RegisterFormView: View {
                     }
                 }
                 .padding(.horizontal)
-                .disabled(viewModel.isLoading)
+                .disabled(SessionManager.shared.isLoading)
                 
-                if viewModel.isLoading {
+                if SessionManager.shared.isLoading {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 }

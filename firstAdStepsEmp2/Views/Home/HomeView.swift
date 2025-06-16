@@ -19,7 +19,7 @@ struct HomeView: View {
                 .tag(0)
             
             // Siparişler
-            OrdersView()
+            RoutesView()
                 .tabItem {
                     Image(selectedTab == 1 ? "BuyHover" : "Buy")
                     Text("Siparişler")

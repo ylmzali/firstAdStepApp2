@@ -117,7 +117,7 @@ struct OTPView: View {
                     .background(otpCode.isEmpty && otpCode.count != 4 ? Theme.gray300 : Theme.purple400)
                     .cornerRadius(12)
             }
-            .disabled(otpCode.count != 4 || viewModel.isLoading)
+            .disabled(otpCode.count != 4 || SessionManager.shared.isLoading)
             
             if let errorMessage = errorMessage {
                 Text(errorMessage)
@@ -137,7 +137,7 @@ struct OTPView: View {
             timer?.invalidate()
         }
         .overlay {
-            if viewModel.isLoading {
+            if SessionManager.shared.isLoading {
                 LoadingView()
             }
         }

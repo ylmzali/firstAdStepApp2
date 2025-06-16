@@ -15,7 +15,6 @@ struct PhoneVerificationView: View {
     @State private var isMarketingAccepted = false
     @State private var showError = false
     @State private var errorMessage: String?
-    @State private var isLoading = false
     @FocusState private var isPhoneFieldFocused: Bool
 
     private let countries = [
@@ -139,7 +138,7 @@ struct PhoneVerificationView: View {
                         }
                         
                         // Devam Et Butonu
-                        if viewModel.isLoading {
+                        if SessionManager.shared.isLoading {
                             HStack {
                                 Text("Gönderiliyor..")
                                 ProgressView()

@@ -43,7 +43,6 @@ struct MainView: View {
                         FuturisticStatBox(icon: "eye.fill", color: .blue, title: "Gösterim", value: "1.2M")
                         FuturisticStatBox(icon: "location.fill", color: .green, title: "Şehir", value: "12")
                     }
-                    .frame(width: .infinity)
                     .padding(.vertical)
 
                     // Call to Action

@@ -78,24 +78,33 @@ struct ProfileView: View {
                         .cornerRadius(12)
                     }
 
-                    Button(role: .destructive) {
-                        showLogoutAlert = true
-                    } label: {
-                        HStack {
-                            Image(systemName: "rectangle.portrait.and.arrow.right")
-                            Text("Çıkış Yap")
+                    Spacer()
+
+                    VStack {
+                        Button(role: .destructive) {
+                            showLogoutAlert = true
+                        } label: {
+                            Label("Çıkış Yap", systemImage: "rectangle.portrait.and.arrow.right")
                         }
-                        .font(.headline)
-                        .foregroundColor(.red)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.red.opacity(0.08))
-                        .cornerRadius(12)
                     }
+                    .alert(isPresented: $showLogoutAlert) {
+                        Alert(
+                            title: Text("Çıkış Yap"),
+                            message: Text("Oturumunuzu kapatmak istediğinize emin misiniz?"),
+                            primaryButton: .destructive(Text("Çıkış Yap")) {
+                                sessionManager.clearSession()
+                            },
+                            secondaryButton: .cancel()
+                        )
+                    }
+
+                    
+
+                    Spacer()
+
                 }
                 .padding(.horizontal)
 
-                Spacer()
             }
         }
         .sheet(isPresented: $showEditProfile) {
@@ -103,26 +112,6 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $showSupport) {
             SupportView(showDeleteAlert: $showDeleteAlert)
-        }
-        .alert(isPresented: $showLogoutAlert) {
-            Alert(
-                title: Text("Çıkış Yap"),
-                message: Text("Oturumunuzu kapatmak istediğinize emin misiniz?"),
-                primaryButton: .destructive(Text("Çıkış Yap")) {
-                    sessionManager.clearSession()
-                },
-                secondaryButton: .cancel()
-            )
-        }
-        .alert(isPresented: $showDeleteAlert) {
-            Alert(
-                title: Text("Hesabınızı silmek üzeresiniz!"),
-                message: Text("Bu işlem geri alınamaz. Emin misiniz?"),
-                primaryButton: .destructive(Text("Hesabımı Sil")) {
-                    // Hesap silme işlemi
-                },
-                secondaryButton: .cancel()
-            )
         }
     }
 }
@@ -202,6 +191,17 @@ struct SupportView: View {
                     .background(Color.red.opacity(0.08))
                     .cornerRadius(12)
                 }
+                .alert(isPresented: $showDeleteAlert) {
+                    Alert(
+                        title: Text("Hesabınızı silmek üzeresiniz!"),
+                        message: Text("Bu işlem geri alınamaz. Emin misiniz?"),
+                        primaryButton: .destructive(Text("Hesabımı Sil")) {
+                            // Hesap silme işlemi
+                        },
+                        secondaryButton: .cancel()
+                    )
+                }
+
 
                 Spacer()
             }

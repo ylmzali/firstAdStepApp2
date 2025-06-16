@@ -2,7 +2,6 @@ import Foundation
 
 @MainActor
 class AuthViewModel: ObservableObject {
-    @Published var isLoading = false
     @Published var errorMessage: String?
     
     private let authService = AuthService.shared
@@ -12,7 +11,7 @@ class AuthViewModel: ObservableObject {
         countryCode: String,
         completion: @escaping (Result<OTPData, ServiceError>) -> Void
     ) {
-        isLoading = true
+        SessionManager.shared.isLoading = true
         errorMessage = nil
         
         /*
@@ -31,7 +30,7 @@ class AuthViewModel: ObservableObject {
             
             DispatchQueue.main.async {
 
-                self.isLoading = false
+                SessionManager.shared.isLoading = false
                 
                 switch result {
                 case .success(let response):
@@ -61,12 +60,12 @@ class AuthViewModel: ObservableObject {
         otpCode: String,
         completion: @escaping (Result<OTPVerifyData, ServiceError>) -> Void
     ) {
-        isLoading = true
+        SessionManager.shared.isLoading = true
         errorMessage = nil
         
         defer {
             DispatchQueue.main.async {
-                self.isLoading = false
+                SessionManager.shared.isLoading = false
             }
         }
         
@@ -113,12 +112,12 @@ class AuthViewModel: ObservableObject {
         companyAddress: String?,
         completion: @escaping (Result<OTPRegisterData, ServiceError>) -> Void
     ) {
-        isLoading = true
+        SessionManager.shared.isLoading = true
         errorMessage = nil
         
         defer {
             DispatchQueue.main.async {
-                self.isLoading = false
+                SessionManager.shared.isLoading = false
             }
         }
         
