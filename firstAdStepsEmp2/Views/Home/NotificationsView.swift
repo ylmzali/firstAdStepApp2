@@ -9,13 +9,24 @@ struct NotificationsView: View {
 
     var body: some View {
         NavigationView {
-            List {
-                ForEach(notifications) { notification in
-                    NotificationRow(notification: notification)
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        ForEach(notifications) { notification in
+                            NotificationRow(notification: notification)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
                 }
             }
-            .listStyle(.plain)
             .navigationTitle("Bildirimler")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(Color.black, for: .navigationBar)
         }
     }
 }
@@ -34,24 +45,36 @@ struct NotificationRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Circle()
-                .fill(notification.isRead ? Color.gray.opacity(0.3) : Color.blue)
+                .fill(notification.isRead ? Color.white.opacity(0.2) : Color.blue.opacity(0.8))
                 .frame(width: 12, height: 12)
                 .padding(.top, 6)
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text(notification.title)
                     .font(.headline)
-                    .foregroundColor(notification.isRead ? .gray : .black)
+                    .foregroundColor(notification.isRead ? .white.opacity(0.5) : .white)
                 Text(notification.message)
                     .font(.subheadline)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.white.opacity(0.7))
                 Text(notification.date)
                     .font(.caption2)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.white.opacity(0.5))
             }
             Spacer()
         }
-        .padding(.vertical, 8)
-        .background(notification.isRead ? Color(.systemGray6) : Color(.systemGray5).opacity(0.5))
-        .cornerRadius(10)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.05))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+                )
+        )
     }
-} 
+}
+
+#Preview {
+    NotificationRow(notification: AppNotification.init(title: "Yeni rota atandı", message: "Kadıköy Üsküdar rotası atandı", date: "", isRead: true))
+}

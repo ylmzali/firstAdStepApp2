@@ -20,8 +20,17 @@ struct LoadingView: View {
                     .padding(.top, 8)
             }
             .padding()
-            .background(Color.gray.opacity(0.8))
+            .padding()
+            .background(Color.black.opacity(0.75))
             .cornerRadius(12)
+            /*
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Gradient(colors: [Color.red, Color.green, Color.blue]), lineWidth: 5)
+                    .blur(radius: 7)
+                    .offset(y: 1)
+            )
+             */
         }
     }
 }

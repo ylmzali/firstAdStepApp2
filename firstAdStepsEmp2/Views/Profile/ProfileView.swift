@@ -9,7 +9,7 @@ struct ProfileView: View {
 
     var body: some View {
         ZStack {
-            Color.white.ignoresSafeArea()
+            Color.black.ignoresSafeArea()
             VStack(spacing: 24) {
                 // Avatar ve isim
                 VStack(spacing: 8) {
@@ -18,32 +18,37 @@ struct ProfileView: View {
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 96, height: 96)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.gray, lineWidth: 2))
+                        .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 2))
                         .shadow(radius: 6)
                     Text("\(sessionManager.currentUser?.firstName ?? "") \(sessionManager.currentUser?.lastName ?? "")")
                         .font(.title2).bold()
-                        .foregroundColor(.black)
+                        .foregroundColor(.white)
                     Text(sessionManager.currentUser?.companyName ?? "")
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.white.opacity(0.7))
                 }
                 .padding(.top, 32)
 
                 // Bilgi kartı
                 VStack(spacing: 12) {
-                    ProfileInfoRow(icon: "envelope.fill", text: sessionManager.currentUser?.email ?? "-", color: .black)
-                    ProfileInfoRow(icon: "phone.fill", text: sessionManager.currentUser?.phoneNumber ?? "-", color: .black)
+                    ProfileInfoRow(icon: "envelope.fill", text: sessionManager.currentUser?.email ?? "-", color: .white)
+                    ProfileInfoRow(icon: "phone.fill", text: sessionManager.currentUser?.phoneNumber ?? "-", color: .white)
                     if let company = sessionManager.currentUser?.companyName, !company.isEmpty {
-                        ProfileInfoRow(icon: "building.2.fill", text: company, color: .black)
+                        ProfileInfoRow(icon: "building.2.fill", text: company, color: .white)
                     }
                     if let company_address = sessionManager.currentUser?.companyAddress, !company_address.isEmpty {
-                        ProfileInfoRow(icon: "map.fill", text: company_address, color: .black)
+                        ProfileInfoRow(icon: "map.fill", text: company_address, color: .white)
                     }
                 }
                 .padding()
-                .background(Color(.systemGray5).opacity(0.15))
-                .cornerRadius(18)
-                .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 18)
+                        .fill(Color.white.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18)
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                )
                 .padding(.horizontal)
 
                 // Aksiyonlar
@@ -59,8 +64,14 @@ struct ProfileView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.black)
-                        .cornerRadius(12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                )
+                        )
                     }
 
                     Button {
@@ -74,8 +85,14 @@ struct ProfileView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.gray)
-                        .cornerRadius(12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                )
+                        )
                     }
 
                     Spacer()
@@ -85,6 +102,7 @@ struct ProfileView: View {
                             showLogoutAlert = true
                         } label: {
                             Label("Çıkış Yap", systemImage: "rectangle.portrait.and.arrow.right")
+                                .foregroundColor(.red)
                         }
                     }
                     .alert(isPresented: $showLogoutAlert) {
@@ -119,12 +137,12 @@ struct ProfileView: View {
 struct ProfileInfoRow: View {
     let icon: String
     let text: String
-    var color: Color = .black
+    var color: Color = .white
 
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .foregroundColor(.gray)
+                .foregroundColor(.white.opacity(0.7))
                 .frame(width: 24, height: 24)
             Text(text)
                 .font(.body)
@@ -139,77 +157,105 @@ struct SupportView: View {
     @Binding var showDeleteAlert: Bool
     var body: some View {
         NavigationView {
-            VStack(spacing: 24) {
-                Text("Yardım & Destek")
-                    .font(.title2).bold()
-                    .padding(.top)
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("SSS")
-                        .font(.headline)
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("• Rezervasyon nasıl yapılır?")
-                        Text("• Canlı takip nasıl çalışır?")
-                        Text("• Raporlar nereden görüntülenir?")
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                VStack(spacing: 24) {
+                    Text("Yardım & Destek")
+                        .font(.title2).bold()
+                        .foregroundColor(.white)
+                        .padding(.top)
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("SSS")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("• Rezervasyon nasıl yapılır?")
+                            Text("• Canlı takip nasıl çalışır?")
+                            Text("• Raporlar nereden görüntülenir?")
+                        }
+                        .font(.body)
+                        .foregroundColor(.white.opacity(0.7))
                     }
-                    .font(.body)
-                    .foregroundColor(.gray)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(12)
-
-                Button(action: {
-                    // WhatsApp ile destek
-                    if let url = URL(string: "https://wa.me/905555555555") {
-                        UIApplication.shared.open(url)
-                    }
-                }) {
-                    HStack {
-                        Image(systemName: "message.fill")
-                        Text("WhatsApp ile Destek Al")
-                    }
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding()
-                    .background(Color.green)
-                    .cornerRadius(12)
-                }
-
-                Button(role: .destructive) {
-                    showDeleteAlert = true
-                } label: {
-                    HStack {
-                        Image(systemName: "trash")
-                        Text("Hesabımı Sil")
-                    }
-                    .font(.headline)
-                    .foregroundColor(.red)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.red.opacity(0.08))
-                    .cornerRadius(12)
-                }
-                .alert(isPresented: $showDeleteAlert) {
-                    Alert(
-                        title: Text("Hesabınızı silmek üzeresiniz!"),
-                        message: Text("Bu işlem geri alınamaz. Emin misiniz?"),
-                        primaryButton: .destructive(Text("Hesabımı Sil")) {
-                            // Hesap silme işlemi
-                        },
-                        secondaryButton: .cancel()
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                            )
                     )
+
+                    Button(action: {
+                        // WhatsApp ile destek
+                        if let url = URL(string: "https://wa.me/905426943496") {
+                            UIApplication.shared.open(url)
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "message.fill")
+                            Text("WhatsApp ile Destek Al")
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.green.opacity(0.2))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.green.opacity(0.4), lineWidth: 1)
+                                )
+                        )
+                    }
+
+                    Button(role: .destructive) {
+                        showDeleteAlert = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "trash")
+                            Text("Hesabımı Sil")
+                        }
+                        .font(.headline)
+                        .foregroundColor(.red)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.red.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                                )
+                        )
+                    }
+                    .alert(isPresented: $showDeleteAlert) {
+                        Alert(
+                            title: Text("Hesabınızı silmek üzeresiniz!"),
+                            message: Text("Bu işlem geri alınamaz. Emin misiniz?"),
+                            primaryButton: .destructive(Text("Hesabımı Sil")) {
+                                // Hesap silme işlemi
+                            },
+                            secondaryButton: .cancel()
+                        )
+                    }
+
+
+                    Spacer()
                 }
-
-
-                Spacer()
+                .padding()
             }
-            .padding()
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(Color.black, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Kapat") { dismiss() }
+                        .foregroundColor(.white)
                 }
             }
         }
@@ -230,32 +276,140 @@ struct EditProfileSheet: View {
 
     var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Kişisel Bilgiler")) {
-                    TextField("Ad", text: $firstName)
-                    TextField("Soyad", text: $lastName)
-                    TextField("E-posta", text: $email)
-                    TextField("Telefon", text: $phone)
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                Form {
+                    Section(header: Text("Kişisel Bilgiler").foregroundColor(.white)) {
+                        TextField("Ad", text: $firstName)
+                            .foregroundColor(.white)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.1))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    )
+                            )
+                        
+                        TextField("Soyad", text: $lastName)
+                            .foregroundColor(.white)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.1))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    )
+                            )
+                        
+                        TextField("E-posta", text: $email)
+                            .foregroundColor(.white)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.1))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    )
+                            )
+                        
+                        TextField("Telefon", text: $phone)
+                            .foregroundColor(.white)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.1))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    )
+                            )
+                    }
+                    .listRowBackground(Color.black)
+                    
+                    Section(header: Text("Şirket Bilgileri").foregroundColor(.white)) {
+                        TextField("Şirket Adı", text: $companyName)
+                            .foregroundColor(.white)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.1))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    )
+                            )
+                        
+                        TextField("Vergi Numarası", text: $companyTaxNumber)
+                            .foregroundColor(.white)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.1))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    )
+                            )
+                        
+                        TextField("Vergi Dairesi", text: $companyTaxOffice)
+                            .foregroundColor(.white)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.1))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    )
+                            )
+                        
+                        TextField("Şirket Adresi", text: $companyAddress)
+                            .foregroundColor(.white)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.1))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    )
+                            )
+                    }
+                    .listRowBackground(Color.black)
                 }
-                Section(header: Text("Şirket Bilgileri")) {
-                    TextField("Şirket Adı", text: $companyName)
-                    TextField("Vergi Numarası", text: $companyTaxNumber)
-                    TextField("Vergi Dairesi", text: $companyTaxOffice)
-                    TextField("Şirket Adresi", text: $companyAddress)
-                }
+                .scrollContentBackground(.hidden)
+                .background(Color.black)
             }
             .navigationTitle("Profili Düzenle")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(Color.black, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Kapat") {
                         dismiss()
                     }
+                    .foregroundColor(.white)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Kaydet") {
                         // Kaydet aksiyonu
                     }
+                    .foregroundColor(.white)
                 }
             }
             .onAppear {

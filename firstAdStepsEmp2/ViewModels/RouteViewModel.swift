@@ -26,7 +26,7 @@ class RouteViewModel: ObservableObject {
             userId: SessionManager.shared.currentUser?.id ?? "",
             title: "",
             description: "",
-            status: "Bekliyor",
+            status: .pending,
             assignedRouteDetailId: "1",
             assignedDate: nil,
             completion: 0,
@@ -66,8 +66,8 @@ class RouteViewModel: ObservableObject {
                     if response.status == "success",
                         let data = response.data,
                         let issetRoute = data.issetRoute,
-                        issetRoute == true,
-                        let route = data.route
+                        issetRoute == true
+                        // let route = data.route
                     {
                         completion(.success(data))
                     } else if let error = response.error {
