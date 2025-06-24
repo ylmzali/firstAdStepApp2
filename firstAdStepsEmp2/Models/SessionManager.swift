@@ -47,6 +47,17 @@ final class SessionManager: ObservableObject {
         }
     }
     
+    func updateCurrentUser(_ user: User) {
+        if let encoded = try? JSONEncoder().encode(user) {
+            UserDefaults.standard.set(encoded, forKey: UserDefaultsKeys.user)
+            
+            DispatchQueue.main.async {
+                self.currentUser = user
+                print("Kullanıcı bilgileri güncellendi: \(user.firstName) \(user.lastName)")
+            }
+        }
+    }
+    
     func clearSession() {
         UserDefaults.standard.removeObject(forKey: UserDefaultsKeys.user)
         UserDefaults.standard.set(false, forKey: UserDefaultsKeys.isAuthenticated)

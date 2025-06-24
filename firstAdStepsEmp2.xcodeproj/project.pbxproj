@@ -18,6 +18,20 @@
 		C10004772E01822D003D5C86 /* MeshGradientBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10004762E01822D003D5C86 /* MeshGradientBackground.swift */; };
 		C10004792E01826B003D5C86 /* MeshGradientButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10004782E01826B003D5C86 /* MeshGradientButton.swift */; };
 		C100047B2E01DC85003D5C86 /* DateFormatterExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C100047A2E01DC85003D5C86 /* DateFormatterExtension.swift */; };
+		C11B49C62E08A470004A3BFC /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49C52E08A470004A3BFC /* UserService.swift */; };
+		C11B49C82E08A55F004A3BFC /* UserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49C72E08A55F004A3BFC /* UserViewModel.swift */; };
+		C11B49CA2E08C34B004A3BFC /* EditProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49C92E08C34B004A3BFC /* EditProfileSheet.swift */; };
+		C11B49CD2E094E4A004A3BFC /* NewRouteSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49CC2E094E4A004A3BFC /* NewRouteSheet.swift */; };
+		C11B49CF2E09A36B004A3BFC /* RouteDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49CE2E09A36B004A3BFC /* RouteDescriptionView.swift */; };
+		C11B49D12E09C475004A3BFC /* RouteCategorySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49D02E09C475004A3BFC /* RouteCategorySection.swift */; };
+		C11B49D32E09C49D004A3BFC /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49D22E09C49D004A3BFC /* StatusBadge.swift */; };
+		C11B49D52E09C4C0004A3BFC /* RouteRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49D42E09C4C0004A3BFC /* RouteRowView.swift */; };
+		C11B49D72E09C4D9004A3BFC /* RouteFuturisticStatBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49D62E09C4D9004A3BFC /* RouteFuturisticStatBox.swift */; };
+		C11B49D92E0A9597004A3BFC /* RouteViewHeaderStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49D82E0A9597004A3BFC /* RouteViewHeaderStats.swift */; };
+		C11B49DF2E0AA544004A3BFC /* EmployeeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49DE2E0AA544004A3BFC /* EmployeeViewModel.swift */; };
+		C11B49E12E0AA5BD004A3BFC /* EmployeeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49E02E0AA5BD004A3BFC /* EmployeeService.swift */; };
+		C11B49E32E0AC1AC004A3BFC /* RouteCreationSuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49E22E0AC1AC004A3BFC /* RouteCreationSuccessView.swift */; };
+		C11B49E52E0AC6E8004A3BFC /* RouteProposalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49E42E0AC6E8004A3BFC /* RouteProposalView.swift */; };
 		C13B94112DFC614E007BC349 /* firstAdStepsEmp2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B94102DFC614E007BC349 /* firstAdStepsEmp2App.swift */; };
 		C13B94132DFC614E007BC349 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B94122DFC614E007BC349 /* ContentView.swift */; };
 		C13B94152DFC6150007BC349 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C13B94142DFC6150007BC349 /* Assets.xcassets */; };
@@ -84,6 +98,20 @@
 		C10004762E01822D003D5C86 /* MeshGradientBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshGradientBackground.swift; sourceTree = "<group>"; };
 		C10004782E01826B003D5C86 /* MeshGradientButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshGradientButton.swift; sourceTree = "<group>"; };
 		C100047A2E01DC85003D5C86 /* DateFormatterExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatterExtension.swift; sourceTree = "<group>"; };
+		C11B49C52E08A470004A3BFC /* UserService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
+		C11B49C72E08A55F004A3BFC /* UserViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserViewModel.swift; sourceTree = "<group>"; };
+		C11B49C92E08C34B004A3BFC /* EditProfileSheet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditProfileSheet.swift; sourceTree = "<group>"; };
+		C11B49CC2E094E4A004A3BFC /* NewRouteSheet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewRouteSheet.swift; sourceTree = "<group>"; };
+		C11B49CE2E09A36B004A3BFC /* RouteDescriptionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteDescriptionView.swift; sourceTree = "<group>"; };
+		C11B49D02E09C475004A3BFC /* RouteCategorySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteCategorySection.swift; sourceTree = "<group>"; };
+		C11B49D22E09C49D004A3BFC /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
+		C11B49D42E09C4C0004A3BFC /* RouteRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteRowView.swift; sourceTree = "<group>"; };
+		C11B49D62E09C4D9004A3BFC /* RouteFuturisticStatBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteFuturisticStatBox.swift; sourceTree = "<group>"; };
+		C11B49D82E0A9597004A3BFC /* RouteViewHeaderStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteViewHeaderStats.swift; sourceTree = "<group>"; };
+		C11B49DE2E0AA544004A3BFC /* EmployeeViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmployeeViewModel.swift; sourceTree = "<group>"; };
+		C11B49E02E0AA5BD004A3BFC /* EmployeeService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmployeeService.swift; sourceTree = "<group>"; };
+		C11B49E22E0AC1AC004A3BFC /* RouteCreationSuccessView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteCreationSuccessView.swift; sourceTree = "<group>"; };
+		C11B49E42E0AC6E8004A3BFC /* RouteProposalView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteProposalView.swift; sourceTree = "<group>"; };
 		C13B940D2DFC614E007BC349 /* firstAdStepsEmp2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = firstAdStepsEmp2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C13B94102DFC614E007BC349 /* firstAdStepsEmp2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = firstAdStepsEmp2App.swift; sourceTree = "<group>"; };
 		C13B94122DFC614E007BC349 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -153,9 +181,28 @@
 		C100045D2DFE428D003D5C86 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
+				C11B49C92E08C34B004A3BFC /* EditProfileSheet.swift */,
 				C100045C2DFE428D003D5C86 /* ProfileView.swift */,
 			);
 			path = Profile;
+			sourceTree = "<group>";
+		};
+		C11B49CB2E094DEE004A3BFC /* Route */ = {
+			isa = PBXGroup;
+			children = (
+				C10004632DFE4C92003D5C86 /* RoutesView.swift */,
+				C10004722E001EBB003D5C86 /* RouteDetailView.swift */,
+				C11B49CE2E09A36B004A3BFC /* RouteDescriptionView.swift */,
+				C11B49CC2E094E4A004A3BFC /* NewRouteSheet.swift */,
+				C11B49D02E09C475004A3BFC /* RouteCategorySection.swift */,
+				C11B49E22E0AC1AC004A3BFC /* RouteCreationSuccessView.swift */,
+				C11B49D22E09C49D004A3BFC /* StatusBadge.swift */,
+				C11B49D42E09C4C0004A3BFC /* RouteRowView.swift */,
+				C11B49D62E09C4D9004A3BFC /* RouteFuturisticStatBox.swift */,
+				C11B49E42E0AC6E8004A3BFC /* RouteProposalView.swift */,
+				C11B49D82E0A9597004A3BFC /* RouteViewHeaderStats.swift */,
+			);
+			path = Route;
 			sourceTree = "<group>";
 		};
 		C13B94042DFC614E007BC349 = {
@@ -256,7 +303,9 @@
 			isa = PBXGroup;
 			children = (
 				C13B94662DFC6CB0007BC349 /* AuthService.swift */,
+				C11B49E02E0AA5BD004A3BFC /* EmployeeService.swift */,
 				C100046B2DFE59FA003D5C86 /* RouteService.swift */,
+				C11B49C52E08A470004A3BFC /* UserService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -273,7 +322,9 @@
 			isa = PBXGroup;
 			children = (
 				C13B94882DFCC5C9007BC349 /* AuthViewModel.swift */,
+				C11B49DE2E0AA544004A3BFC /* EmployeeViewModel.swift */,
 				C10004692DFE59C0003D5C86 /* RouteViewModel.swift */,
+				C11B49C72E08A55F004A3BFC /* UserViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -284,6 +335,7 @@
 				C13B945B2DFC631C007BC349 /* Authentication */,
 				C13B94822DFC8765007BC349 /* Common */,
 				C13B94772DFC83A8007BC349 /* Home */,
+				C11B49CB2E094DEE004A3BFC /* Route */,
 				C100045D2DFE428D003D5C86 /* Profile */,
 				C13B94742DFC8267007BC349 /* RootView.swift */,
 				C13B94702DFC7080007BC349 /* SplashView.swift */,
@@ -320,8 +372,6 @@
 				C10004612DFE438D003D5C86 /* MainView.swift */,
 				C13B94762DFC83A8007BC349 /* HomeView.swift */,
 				C10004652DFE4E00003D5C86 /* NotificationsView.swift */,
-				C10004722E001EBB003D5C86 /* RouteDetailView.swift */,
-				C10004632DFE4C92003D5C86 /* RoutesView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -465,9 +515,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C11B49CD2E094E4A004A3BFC /* NewRouteSheet.swift in Sources */,
+				C11B49D12E09C475004A3BFC /* RouteCategorySection.swift in Sources */,
 				C13B948B2DFDA572007BC349 /* CustomTextField.swift in Sources */,
 				C13B946D2DFC7005007BC349 /* LogManager.swift in Sources */,
 				C13B94452DFC6203007BC349 /* User.swift in Sources */,
+				C11B49CA2E08C34B004A3BFC /* EditProfileSheet.swift in Sources */,
 				C13B945F2DFC631C007BC349 /* PhoneVerificationView.swift in Sources */,
 				C13B94402DFC61BE007BC349 /* AppConfig.swift in Sources */,
 				C100046C2DFE59FA003D5C86 /* RouteService.swift in Sources */,
@@ -475,21 +528,30 @@
 				C13B94782DFC83A8007BC349 /* HomeView.swift in Sources */,
 				C13B947C2DFC8650007BC349 /* NotificationManager.swift in Sources */,
 				C13B94602DFC631C007BC349 /* RegisterFormView.swift in Sources */,
+				C11B49D92E0A9597004A3BFC /* RouteViewHeaderStats.swift in Sources */,
 				C13B94652DFC6471007BC349 /* LoadingView.swift in Sources */,
 				C13B944A2DFC623F007BC349 /* CentralErrorManager.swift in Sources */,
 				C10004772E01822D003D5C86 /* MeshGradientBackground.swift in Sources */,
+				C11B49E12E0AA5BD004A3BFC /* EmployeeService.swift in Sources */,
+				C11B49E32E0AC1AC004A3BFC /* RouteCreationSuccessView.swift in Sources */,
 				C13B94492DFC623F007BC349 /* Log.swift in Sources */,
 				C13B94832DFC8765007BC349 /* ErrorView.swift in Sources */,
 				C13B946B2DFC6FE3007BC349 /* AppDelegate.swift in Sources */,
 				C10004662DFE4E00003D5C86 /* NotificationsView.swift in Sources */,
 				C13B94692DFC6CC2007BC349 /* SessionManager.swift in Sources */,
+				C11B49D32E09C49D004A3BFC /* StatusBadge.swift in Sources */,
 				C13B94752DFC8267007BC349 /* RootView.swift in Sources */,
+				C11B49C82E08A55F004A3BFC /* UserViewModel.swift in Sources */,
+				C11B49CF2E09A36B004A3BFC /* RouteDescriptionView.swift in Sources */,
 				C13B948D2DFDAFA5007BC349 /* ErrorResponse.swift in Sources */,
 				C13B946F2DFC7061007BC349 /* NavigationManager.swift in Sources */,
+				C11B49DF2E0AA544004A3BFC /* EmployeeViewModel.swift in Sources */,
 				C10004792E01826B003D5C86 /* MeshGradientButton.swift in Sources */,
+				C11B49E52E0AC6E8004A3BFC /* RouteProposalView.swift in Sources */,
 				C100047B2E01DC85003D5C86 /* DateFormatterExtension.swift in Sources */,
 				C13B944B2DFC623F007BC349 /* Enums.swift in Sources */,
 				C13B94712DFC7080007BC349 /* SplashView.swift in Sources */,
+				C11B49D72E09C4D9004A3BFC /* RouteFuturisticStatBox.swift in Sources */,
 				C13B94132DFC614E007BC349 /* ContentView.swift in Sources */,
 				C100046A2DFE59C0003D5C86 /* RouteViewModel.swift in Sources */,
 				C10004642DFE4C92003D5C86 /* RoutesView.swift in Sources */,
@@ -504,7 +566,9 @@
 				C10004622DFE438D003D5C86 /* MainView.swift in Sources */,
 				C13B947A2DFC85D4007BC349 /* AppStateManager.swift in Sources */,
 				C10004732E001EBB003D5C86 /* RouteDetailView.swift in Sources */,
+				C11B49C62E08A470004A3BFC /* UserService.swift in Sources */,
 				C13B94852DFCC58A007BC349 /* APIResponse.swift in Sources */,
+				C11B49D52E09C4C0004A3BFC /* RouteRowView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

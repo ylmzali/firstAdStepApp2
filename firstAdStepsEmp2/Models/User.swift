@@ -12,7 +12,12 @@ struct User: Codable, Identifiable {
     let companyTaxNumber: String?
     let companyTaxOffice: String?
     let companyAddress: String?
+    let status: String
     let createdAt: String
+    
+    var fullName: String {
+        return "\(firstName) \(lastName)"
+    }
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -25,6 +30,7 @@ struct User: Codable, Identifiable {
         case companyTaxNumber
         case companyTaxOffice
         case companyAddress
+        case status
         case createdAt = "createdAt"
     }
     
@@ -39,6 +45,7 @@ struct User: Codable, Identifiable {
          companyTaxNumber: String? = nil,
          companyTaxOffice: String? = nil,
          companyAddress: String? = nil,
+         status: String = "active",
          createdAt: String) {
         self.id = id
         self.firstName = firstName
@@ -50,6 +57,7 @@ struct User: Codable, Identifiable {
         self.companyTaxNumber = companyTaxNumber
         self.companyTaxOffice = companyTaxOffice
         self.companyAddress = companyAddress
+        self.status = status
         self.createdAt = createdAt
     }
     
@@ -70,6 +78,7 @@ struct User: Codable, Identifiable {
         companyTaxNumber = try container.decodeIfPresent(String.self, forKey: .companyTaxNumber)
         companyTaxOffice = try container.decodeIfPresent(String.self, forKey: .companyTaxOffice)
         companyAddress = try container.decodeIfPresent(String.self, forKey: .companyAddress)
+        status = try container.decodeIfPresent(String.self, forKey: .status) ?? "active"
         createdAt = try container.decode(String.self, forKey: .createdAt)
     }
     
@@ -85,6 +94,7 @@ struct User: Codable, Identifiable {
         companyTaxNumber: "1234567890",
         companyTaxOffice: "Test Office",
         companyAddress: "Test Address",
+        status: "active",
         createdAt: "2024-03-20T12:00:00Z"
     )
 } 

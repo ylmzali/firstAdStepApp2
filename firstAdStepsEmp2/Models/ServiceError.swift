@@ -9,6 +9,7 @@ enum ServiceError: LocalizedError {
     case serverError(String)
     case unknown(String)
     case notFound
+    case badRequest
     case invalidCode
     case invalidResponse
     case unauthorized
@@ -36,6 +37,8 @@ enum ServiceError: LocalizedError {
             return message
         case .notFound:
             return "Kullanıcı bulunamadı"
+        case .badRequest:
+            return "Geçersiz istek"
         case .invalidCode:
             return "Girilen kod hatalı"
         case .invalidResponse:
@@ -61,6 +64,8 @@ enum ServiceError: LocalizedError {
             return "Beklenmeyen bir hata oluştu: \(message)"
         case .notFound:
             return "Kullanıcı bulunamadı, lütfen tekrar deneyin"
+        case .badRequest:
+            return "Geçersiz istek, lütfen tekrar deneyin"
         case .invalidCode:
             return "Girilen kod hatalı, lütfen tekrar deneyin"
         case .unauthorized:

@@ -115,6 +115,7 @@ struct RoutesGetError: Codable {
     let message: String
     let details: String
 }
+
 // ROUTE CREATE
 struct RouteCreateResponse: Codable {
     let status: String

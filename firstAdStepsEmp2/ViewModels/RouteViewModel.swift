@@ -27,9 +27,10 @@ class RouteViewModel: ObservableObject {
             title: "",
             description: "",
             status: .pending,
-            assignedRouteDetailId: "1",
             assignedDate: nil,
             completion: 0,
+            shareWithEmployees: false,
+            sharedEmployeeIds: [],
             createdAt: ISO8601DateFormatter().string(from: Date())
         )
     }
