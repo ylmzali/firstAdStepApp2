@@ -9,7 +9,7 @@ enum AppConfig {
     }
 
     enum SMS {
-        // Twilio API kullanımı - Credentials should be stored securely
+        // Twilio API kullanımı
         static let twillioAccountSid = "***REMOVED***"
         static let twillioAuthToken = "***REMOVED***"
         static let twillioVerifyServiceSid = "***REMOVED***"
