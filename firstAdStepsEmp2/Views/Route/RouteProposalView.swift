@@ -92,7 +92,7 @@ struct RouteProposalView: View {
                         )
                     }
                     
-                    if route.status == .proposal_ready {
+                    if route.status == .plan_ready {
                         Button(action: {
                             showApprovalSheet = true
                         }) {
@@ -127,12 +127,10 @@ struct RouteProposalView: View {
     
     private var statusIcon: String {
         switch route.status {
-        case .proposal_pending:
+        case .request_received:
             return "clock.circle.fill"
-        case .proposal_ready:
+        case .plan_ready:
             return "doc.text.circle.fill"
-        case .proposal_approved:
-            return "checkmark.circle.fill"
         default:
             return "doc.text.circle.fill"
         }
@@ -140,12 +138,10 @@ struct RouteProposalView: View {
     
     private var statusColor: Color {
         switch route.status {
-        case .proposal_pending:
+        case .request_received:
+            return .gray
+        case .plan_ready:
             return .blue
-        case .proposal_ready:
-            return .orange
-        case .proposal_approved:
-            return .green
         default:
             return .blue
         }
@@ -153,12 +149,10 @@ struct RouteProposalView: View {
     
     private var statusTitle: String {
         switch route.status {
-        case .proposal_pending:
+        case .request_received:
             return "Plan Hazırlanıyor"
-        case .proposal_ready:
+        case .plan_ready:
             return "Plan Hazır"
-        case .proposal_approved:
-            return "Plan Onaylandı"
         default:
             return "Plan Durumu"
         }
@@ -166,12 +160,10 @@ struct RouteProposalView: View {
     
     private var statusDescription: String {
         switch route.status {
-        case .proposal_pending:
+        case .request_received:
             return "Uzman ekibimiz detaylı çalışma planınızı hazırlıyor"
-        case .proposal_ready:
+        case .plan_ready:
             return "Çalışma planınız hazır. İnceleyip onaylayabilirsiniz"
-        case .proposal_approved:
-            return "Plan onaylandı. Ödeme işlemine geçilecek"
         default:
             return "Plan durumu"
         }
@@ -238,6 +230,7 @@ struct ProposalApprovalView: View {
     let route: Route
     @Environment(\.dismiss) private var dismiss
     @State private var approvalText = ""
+    @State private var showRejectionOptions = false
     
     var body: some View {
         NavigationView {
@@ -248,12 +241,12 @@ struct ProposalApprovalView: View {
                     .foregroundColor(.green)
                 
                 // Başlık
-                Text("Çalışma Planını Onayla")
+                Text("Çalışma Planını Değerlendir")
                     .font(.title2)
                     .fontWeight(.bold)
                 
                 // Açıklama
-                Text("Çalışma planını onayladığınızda, ödeme işlemine geçilecektir. Onay işlemi geri alınamaz.")
+                Text("Çalışma planını inceleyin ve onaylayın veya reddedin. Onay işlemi geri alınamaz.")
                     .font(.body)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -261,10 +254,10 @@ struct ProposalApprovalView: View {
                 
                 // Onay Notu
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Onay Notu (Opsiyonel)")
+                    Text("Not (Opsiyonel)")
                         .font(.headline)
                     
-                    TextField("Onay notunuzu buraya yazabilirsiniz...", text: $approvalText, axis: .vertical)
+                    TextField("Notunuzu buraya yazabilirsiniz...", text: $approvalText, axis: .vertical)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .lineLimit(3...6)
                 }
@@ -273,27 +266,46 @@ struct ProposalApprovalView: View {
                 // Butonlar
                 VStack(spacing: 12) {
                     Button(action: {
-                        // TODO: Onay işlemi
+                        // TODO: Onay işlemi - payment_pending durumuna geç
+                        print("Plan onaylandı")
                         dismiss()
                     }) {
-                        Text("Planı Onayla")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(Color.green)
-                            .cornerRadius(12)
+                        HStack(spacing: 8) {
+                            Image(systemName: "checkmark.circle.fill")
+                            Text("Planı Onayla")
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(Color.green)
+                        .cornerRadius(12)
+                    }
+                    
+                    Button(action: {
+                        showRejectionOptions = true
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "xmark.circle.fill")
+                            Text("Planı Reddet")
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(Color.red)
+                        .cornerRadius(12)
                     }
                     
                     Button(action: {
                         dismiss()
                     }) {
-                        Text("İptal")
+                        Text("Vazgeç")
                             .font(.headline)
-                            .foregroundColor(.red)
+                            .foregroundColor(.gray)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
-                            .background(Color.red.opacity(0.1))
+                            .background(Color.gray.opacity(0.1))
                             .cornerRadius(12)
                     }
                 }
@@ -302,7 +314,7 @@ struct ProposalApprovalView: View {
                 Spacer()
             }
             .padding()
-            .navigationTitle("Plan Onayı")
+            .navigationTitle("Plan Değerlendirme")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -310,6 +322,26 @@ struct ProposalApprovalView: View {
                         dismiss()
                     }
                 }
+            }
+            .alert("Plan Reddetme", isPresented: $showRejectionOptions) {
+                Button("Not ile Reddet") {
+                    // TODO: Not ile reddetme işlemi
+                    print("Plan not ile reddedildi: \(approvalText)")
+                    dismiss()
+                }
+                Button("Yeni Plan İste") {
+                    // TODO: Yeni plan isteği
+                    print("Yeni plan istendi")
+                    dismiss()
+                }
+                Button("İptal Et") {
+                    // TODO: Tamamen iptal etme
+                    print("Plan tamamen iptal edildi")
+                    dismiss()
+                }
+                Button("Vazgeç", role: .cancel) { }
+            } message: {
+                Text("Planı nasıl reddetmek istiyorsunuz?")
             }
         }
     }

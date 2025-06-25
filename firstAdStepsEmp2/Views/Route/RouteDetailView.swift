@@ -1,5 +1,6 @@
 import SwiftUI
 import MapKit
+import WebKit
 
 struct RouteDetailView: View {
     let route: Route
@@ -10,341 +11,456 @@ struct RouteDetailView: View {
         center: CLLocationCoordinate2D(latitude: 41.0082, longitude: 28.9784), // İstanbul
         span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
     )
+    @State private var showApprovalAlert = false
+    @State private var showRejectionAlert = false
+    @State private var rejectionNote = ""
+    @State private var showRejectionNoteInput = false
+    @State private var showWorkPlanDetail = false
     
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    // Header Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        // Title and Status
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(route.title)
-                                .font(.system(size: 32, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
-                            
-                            StatusBadge(status: route.status)
-                                .scaleEffect(1.1)
+                    headerSection
+                    // descriptionSection
+                    workflowSection
+                    contactSection
+                    cancelSection
+                }
+            }
+            closeButton
+        }
+        .sheet(isPresented: $showWorkPlanDetail) {
+            WorkPlanDetailView(route: route)
+        }
+        .alert("Plan Onayı", isPresented: $showApprovalAlert) {
+            Button("Onayla") {
+                print("Plan onaylandı")
+            }
+            Button("Reddet") {
+                showRejectionAlert = true
+            }
+            Button("İptal", role: .cancel) { }
+        } message: {
+            Text("Çalışma planını onaylıyor musunuz?")
+        }
+        .alert("Plan Reddetme", isPresented: $showRejectionAlert) {
+            Button("Not ile Reddet") {
+                showRejectionNoteInput = true
+            }
+            Button("Yeni Plan İste") {
+                print("Yeni plan istendi")
+            }
+            Button("İptal Et") {
+                print("Plan iptal edildi")
+            }
+            Button("Vazgeç", role: .cancel) { }
+        } message: {
+            Text("Planı nasıl reddetmek istiyorsunuz?")
+        }
+        .alert("Reddetme Notu", isPresented: $showRejectionNoteInput) {
+            TextField("Reddetme nedeninizi yazın...", text: $rejectionNote)
+            Button("Gönder") {
+                print("Plan reddedildi, not: \(rejectionNote)")
+                rejectionNote = ""
+            }
+            Button("İptal", role: .cancel) {
+                rejectionNote = ""
+            }
+        } message: {
+            Text("Planı neden reddettiğinizi belirtin:")
+        }
+    }
+
+    // MARK: - Bölümler
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 12) {
+                StatusBadge(status: route.status)
+                    .scaleEffect(1)
+                Text(route.title)
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                Text(route.description)
+                    .font(.system(size: 16))
+                    .foregroundColor(.white.opacity(0.9))
+                    .lineLimit(nil)
+            }
+            .padding(.bottom)
+
+            /*
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: "circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(.blue)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Reklam Durumu")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                        Text(route.status.rawValue.capitalized)
+                            .font(.system(size: 14))
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                    Spacer()
+                    Text("\(route.completion)%")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.green)
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.blue.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                        )
+                )
+            }
+             */
+
+            if route.canStartLiveTracking {
+                liveTrackingSection
+            }
+            if let assignedDate = route.formattedAssignedDate {
+                assignedDateSection(assignedDate: assignedDate)
+            }
+            if route.shareWithEmployees {
+                shareWithEmployeesSection
+            }
+        }
+        .padding(.top, 50)
+        .padding(.horizontal, 24)
+        .padding(.bottom, 30)
+    }
+
+    private var liveTrackingSection: some View {
+        Button {
+            print("Canlı takip başladı...")
+        } label: {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: "location.circle.fill")
+                        .font(.system(size: 20))
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Canlı Takip")
+                            .font(.system(size: 16, weight: .semibold))
+                        Text("Reklamınızı gerçek zamanlı takip edin")
+                            .font(.system(size: 12))
+                    }
+                    Spacer()
+                    Image(systemName: "arrow.right.circle.fill")
+                        .font(.system(size: 20))
+                }
+                .padding()
+                .foregroundColor(.white)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.green.opacity(1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.green.opacity(0.3), lineWidth: 5)
+                        )
+                )
+            }
+        }
+    }
+
+    private func assignedDateSection(assignedDate: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                
+                HStack {
+                    
+                    Image(systemName: "calendar.circle.fill")
+                        .foregroundColor(.orange)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Reklam Tarihi")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.white)
+                        Text(assignedDate)
+                            .font(.system(size: 14))
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+                }
+
+                Spacer()
+
+                HStack {
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("Oluşturulma")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.white)
+                        Text(route.formattedCreatedDate ?? "")
+                            .font(.system(size: 14))
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+
+                    Image(systemName: "calendar.circle.fill")
+                        .foregroundColor(.orange)
+                    
+                }
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.orange.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                )
+        )
+    }
+
+    private var shareWithEmployeesSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: "person.2.circle.fill")
+                    .foregroundColor(.purple)
+                Text("Ekip Paylaşımı")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+            }
+            if !route.sharedEmployeeIds.isEmpty {
+                Text("\(route.sharedEmployeeIds.count) çalışan ile paylaşıldı")
+                    .font(.system(size: 14))
+                    .foregroundColor(.white.opacity(0.8))
+                    .padding(.leading, 28)
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.purple.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.purple.opacity(0.3), lineWidth: 1)
+                )
+        )
+    }
+
+    private var workflowSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "arrow.right.circle.fill")
+                    .foregroundColor(.green)
+                Text("İş Süreci")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.white)
+            }
+            VStack(spacing: 12) {
+                WorkflowStepRow(
+                    icon: "plus.circle.fill",
+                    title: "Reklam Talebi Alındı",
+                    description: "Reklam talebiniz sisteme kaydedildi ✓",
+                    color: .green,
+                    isCompleted: route.status.isStepCompleted(1),
+                    isClickable: false,
+                    isActive: route.status.isStepActive(1)
+                )
+                WorkflowStepRow(
+                    icon: "doc.text.circle.fill",
+                    title: "Plan Hazırlandı",
+                    description: "Çalışma planı hazırlandı ✓",
+                    color: .blue,
+                    isCompleted: route.status.isStepCompleted(2),
+                    isClickable: (route.status.isStepActive(2) || route.status.isStepCompleted(2)) && route.status != .plan_rejected,
+                    isActive: route.status.isStepActive(2),
+                    onTap: {
+                        if route.status.isStepActive(2) || route.status.isStepCompleted(2) || route.status == .plan_rejected {
+                            showWorkPlanDetail = true
                         }
-                        
-                        // Reklam Durumu Kartı
-                        VStack(alignment: .leading, spacing: 12) {
+                    }
+                )
+                WorkflowStepRow(
+                    icon: "checkmark.circle.fill",
+                    title: "Plan Onaylandı",
+                    description: "Plan onaylandı, ödeme bekleniyor ✓",
+                    color: .orange,
+                    isCompleted: route.status.isStepCompleted(3),
+                    isClickable: false,
+                    isActive: route.status.isStepActive(3)
+                )
+                WorkflowStepRow(
+                    icon: "creditcard.circle.fill",
+                    title: "Ödeme Alındı",
+                    description: "Ödeme alındı, yayın planına alındı ✓",
+                    color: .green,
+                    isCompleted: route.status.isStepCompleted(4),
+                    isClickable: false,
+                    isActive: route.status.isStepActive(4)
+                )
+                WorkflowStepRow(
+                    icon: "location.circle.fill",
+                    title: "Aktif Yayın",
+                    description: "Reklam aktif olarak yayınlanıyor ✓",
+                    color: .green,
+                    isCompleted: route.status.isStepCompleted(5),
+                    isClickable: false,
+                    isActive: route.status.isStepActive(5)
+                )
+                WorkflowStepRow(
+                    icon: "location.circle.fill",
+                    title: "Tamamlandı",
+                    description: "Reklam tamamalandı ✓",
+                    color: .green,
+                    isCompleted: route.status.isStepCompleted(6),
+                    isClickable: false,
+                    isActive: route.status.isStepActive(6)
+                )
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.green.opacity(0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.green.opacity(0.3), lineWidth: 1)
+                    )
+            )
+        }
+        .padding(.horizontal, 24)
+    }
+
+    private var contactSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "phone.circle.fill")
+                    .foregroundColor(.yellow)
+                Text("İletişim")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.white)
+            }
+            VStack(spacing: 12) {
+                ContactInfoRow(
+                    icon: "phone.fill",
+                    title: "Telefon",
+                    value: "+90 212 555 0123",
+                    action: { }
+                )
+                ContactInfoRow(
+                    icon: "envelope.fill",
+                    title: "E-posta",
+                    value: "destek@buisyurur.com",
+                    action: { }
+                )
+                ContactInfoRow(
+                    icon: "message.fill",
+                    title: "WhatsApp",
+                    value: "+90 532 555 0123",
+                    action: { }
+                )
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.yellow.opacity(0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.yellow.opacity(0.3), lineWidth: 1)
+                    )
+            )
+        }
+        .padding(.horizontal, 24)
+    }
+
+    private var descriptionSection: some View {
+        Group {
+            if !route.description.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: "text.quote.circle.fill")
+                            .foregroundColor(.blue)
+                        Text("Reklam Açıklaması")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.white)
+                    }
+                    HStack {
+                        Text(route.description)
+                            .font(.system(size: 14))
+                            .foregroundColor(.white.opacity(0.8))
+                            .lineLimit(nil)
+                    }
+                    .padding(.horizontal,8)
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.blue.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                        )
+                )
+                .padding(.horizontal, 24)
+            }
+        }
+    }
+
+    private var cancelSection: some View {
+        Group {
+            if route.status.canCancel {
+                
+                    VStack(spacing: 12) {
+                        Button(action: {
+                            print("Reklam iptal edildi")
+                        }) {
                             HStack {
-                                Image(systemName: "megaphone.circle.fill")
+                                Image(systemName: "xmark.circle.fill")
                                     .font(.system(size: 20))
-                                    .foregroundColor(.blue)
-                                
+                                    .foregroundColor(.red)
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("Reklam Durumu")
+                                    Text("Reklamı İptal Et")
                                         .font(.system(size: 16, weight: .semibold))
                                         .foregroundColor(.white)
-                                    
-                                    Text(route.status.rawValue.capitalized)
-                                        .font(.system(size: 14))
+                                    Text("Bu reklam talebini iptal etmek istediğinizden emin misiniz?")
+                                        .font(.system(size: 12))
                                         .foregroundColor(.white.opacity(0.7))
                                 }
-                                
                                 Spacer()
-                                
-                                Text("\(route.completion)%")
-                                    .font(.system(size: 18, weight: .bold))
-                                    .foregroundColor(.green)
+                                Image(systemName: "arrow.right.circle.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.red)
                             }
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color.blue.opacity(0.1))
+                                    .fill(Color.red.opacity(0.1))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 16)
-                                            .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                                            .stroke(Color.red.opacity(0.3), lineWidth: 1)
                                     )
                             )
                         }
-                        
-                        // Canlı Takip Butonu
-                        if route.canStartLiveTracking {
-                            VStack(alignment: .leading, spacing: 12) {
-                                HStack {
-                                    Image(systemName: "location.circle.fill")
-                                        .font(.system(size: 20))
-                                        .foregroundColor(.green)
-                                    
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("Canlı Takip")
-                                            .font(.system(size: 16, weight: .semibold))
-                                            .foregroundColor(.white)
-                                        
-                                        Text("Reklamınızı gerçek zamanlı takip edin")
-                                            .font(.system(size: 12))
-                                            .foregroundColor(.white.opacity(0.7))
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "arrow.right.circle.fill")
-                                        .font(.system(size: 20))
-                                        .foregroundColor(.green)
-                                }
-                                .padding()
-                                .background(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .fill(Color.green.opacity(0.1))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 16)
-                                                .stroke(Color.green.opacity(0.3), lineWidth: 1)
-                                        )
-                                )
-                                .onTapGesture {
-                                    // TODO: Navigate to live tracking
-                                }
-                            }
-                        }
-                        
-                        // Reklam Tarihi Bilgisi
-                        if let assignedDate = route.formattedAssignedDate {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Image(systemName: "calendar.circle.fill")
-                                        .foregroundColor(.orange)
-                                    Text("Reklam Tarihi")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundColor(.white)
-                                }
-                                
-                                Text(assignedDate)
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.white.opacity(0.8))
-                                    .padding(.leading, 28)
-                            }
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color.orange.opacity(0.1))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 16)
-                                            .stroke(Color.orange.opacity(0.3), lineWidth: 1)
-                                    )
-                            )
-                        }
-                        
-                        // Ekip Paylaşımı Bilgisi
-                        if route.shareWithEmployees {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Image(systemName: "person.2.circle.fill")
-                                        .foregroundColor(.purple)
-                                    Text("Ekip Paylaşımı")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundColor(.white)
-                                }
-                                
-                                if !route.sharedEmployeeIds.isEmpty {
-                                    Text("\(route.sharedEmployeeIds.count) çalışan ile paylaşıldı")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.white.opacity(0.8))
-                                        .padding(.leading, 28)
-                                }
-                            }
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color.purple.opacity(0.1))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 16)
-                                            .stroke(Color.purple.opacity(0.3), lineWidth: 1)
-                                    )
-                            )
-                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
-                    .padding(.top, 50)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 30)
-                    
-                    // İş Süreci Bölümü
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Image(systemName: "arrow.right.circle.fill")
-                                .foregroundColor(.green)
-                            Text("İş Süreci")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(.white)
-                        }
-                        
-                        VStack(spacing: 12) {
-                            WorkflowStepRow(
-                                icon: "plus.circle.fill",
-                                title: "Reklam Talebi Oluşturuldu",
-                                description: "Reklam talebiniz sisteme kaydedildi",
-                                color: .green,
-                                isCompleted: true
-                            )
-                            
-                            WorkflowStepRow(
-                                icon: "doc.text.circle.fill",
-                                title: "Çalışma Planı Hazırlanıyor",
-                                description: "Uzman ekibimiz detaylı çalışma planı hazırlıyor",
-                                color: .blue,
-                                isCompleted: route.status.isInProposalPhase || route.status.isAfterProposal
-                            )
-                            
-                            WorkflowStepRow(
-                                icon: "envelope.circle.fill",
-                                title: "Plan Firma Onayına Gönderildi",
-                                description: "Çalışma planı e-posta ile firmanıza gönderildi",
-                                color: .orange,
-                                isCompleted: route.status.isAfterProposal
-                            )
-                            
-                            WorkflowStepRow(
-                                icon: "checkmark.circle.fill",
-                                title: "Firma Onayı",
-                                description: "Çalışma planı firma tarafından onaylanacak",
-                                color: .purple,
-                                isCompleted: route.status.isAfterApproval
-                            )
-                            
-                            WorkflowStepRow(
-                                icon: "creditcard.circle.fill",
-                                title: "Ödeme İşlemi",
-                                description: "Onay sonrası ödeme işlemi gerçekleştirilecek",
-                                color: .yellow,
-                                isCompleted: route.status.isAfterPayment
-                            )
-                            
-                            WorkflowStepRow(
-                                icon: "flag.circle.fill",
-                                title: "Son Onay",
-                                description: "Ödeme sonrası son onay ve aktivasyon",
-                                color: .red,
-                                isCompleted: route.status.isAfterFinalApproval
-                            )
-                            
-                            WorkflowStepRow(
-                                icon: "location.circle.fill",
-                                title: "Canlı Takip",
-                                description: "Rota aktif olacak ve gerçek zamanlı takip edilebilecek",
-                                color: .green,
-                                isCompleted: route.status == .active
-                            )
-                        }
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.green.opacity(0.1))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color.green.opacity(0.3), lineWidth: 1)
-                                )
-                        )
-                    }
-                    .padding(.horizontal, 24)
-                    
-                    // İletişim Bilgileri
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Image(systemName: "phone.circle.fill")
-                                .foregroundColor(.yellow)
-                            Text("İletişim")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(.white)
-                        }
-                        
-                        VStack(spacing: 12) {
-                            ContactInfoRow(
-                                icon: "phone.fill",
-                                title: "Telefon",
-                                value: "+90 212 555 0123",
-                                action: { /* Telefon arama */ }
-                            )
-                            
-                            ContactInfoRow(
-                                icon: "envelope.fill",
-                                title: "E-posta",
-                                value: "destek@buisyurur.com",
-                                action: { /* E-posta gönderme */ }
-                            )
-                            
-                            ContactInfoRow(
-                                icon: "message.fill",
-                                title: "WhatsApp",
-                                value: "+90 532 555 0123",
-                                action: { /* WhatsApp mesajı */ }
-                            )
-                        }
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.yellow.opacity(0.1))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color.yellow.opacity(0.3), lineWidth: 1)
-                                )
-                        )
-                    }
-                    .padding(.horizontal, 24)
-                    
-                    // Reklam Açıklaması
-                    if !route.description.isEmpty {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                Image(systemName: "text.quote.circle.fill")
-                                    .foregroundColor(.blue)
-                                Text("Reklam Açıklaması")
-                                    .font(.system(size: 18, weight: .semibold))
-                                    .foregroundColor(.white)
-                            }
-                            
-                            Text(route.description)
-                                .font(.system(size: 14))
-                                .foregroundColor(.white.opacity(0.8))
-                                .lineLimit(nil)
-                        }
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.blue.opacity(0.1))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color.blue.opacity(0.3), lineWidth: 1)
-                                )
-                        )
-                        .padding(.horizontal, 24)
-                    }
-                    
-                    // Çalışma Planı Sekmesi (sadece proposal aşamasında göster)
-                    if route.status.isInProposalPhase {
-                        RouteProposalView(route: route)
-                            .padding(.horizontal, 24)
-                    }
-                    
-                    // Harita Görünümü
-                    RouteMapView(region: $region)
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 100)
-                }
+                    .padding(24)
+                
             }
-            
-            // Fixed Close Button
-            VStack {
-                HStack {
-                    Spacer()
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                            .background(
-                                Circle()
-                                    .fill(Color.black.opacity(0.5))
-                                    .frame(width: 40, height: 40)
-                            )
-                    }
-                    .padding(.trailing, 20)
-                    .padding(.top, 20)
-                }
+        }
+    }
+
+    private var closeButton: some View {
+        VStack {
+            HStack {
                 Spacer()
+                Button(action: { dismiss() }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .background(
+                            Circle()
+                                .fill(Color.black.opacity(0.5))
+                                .frame(width: 40, height: 40)
+                        )
+                }
+                .padding(.trailing, 20)
+                .padding(.top, 20)
             }
+            Spacer()
         }
     }
 }
@@ -357,26 +473,91 @@ struct WorkflowStepRow: View {
     let description: String
     let color: Color
     let isCompleted: Bool
+    let isClickable: Bool
+    let isActive: Bool
+    let onTap: (() -> Void)?
+    
+    init(icon: String, title: String, description: String, color: Color, isCompleted: Bool, isClickable: Bool = false, isActive: Bool = false, onTap: (() -> Void)? = nil) {
+        self.icon = icon
+        self.title = title
+        self.description = description
+        self.color = color
+        self.isCompleted = isCompleted
+        self.isClickable = isClickable
+        self.isActive = isActive
+        self.onTap = onTap
+    }
     
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: isCompleted ? "checkmark.circle.fill" : icon)
+            // Checkbox - Renk duruma göre değişiyor
+            Image(systemName: isCompleted ? "checkmark.circle.fill" : "checkmark.circle.fill")
                 .font(.system(size: 20))
-                .foregroundColor(isCompleted ? .green : color)
+                .foregroundColor(checkboxColor)
                 .frame(width: 24)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundColor(textColor)
                 
                 Text(description)
                     .font(.system(size: 12))
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(descriptionColor)
                     .multilineTextAlignment(.leading)
             }
             
             Spacer()
+            
+            // Tıklanabilir göstergesi
+            if isClickable {
+                HStack {
+                    Text("Plan")
+                    Image(systemName: "arrow.right.circle.fill")
+                }
+                .font(.system(size: 16))
+                .foregroundColor(.green)
+                .tint(Color.blue)
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isClickable {
+                onTap?()
+            }
+        }
+    }
+    
+    // Checkbox rengi
+    private var checkboxColor: Color {
+        if isCompleted {
+            return .blue // Tamamlanan adımlar mavi tick
+        } else if isActive {
+            return .green // Aktif adım yeşil
+        } else {
+            return .gray // Gelecek adımlar gri
+        }
+    }
+    
+    // Başlık rengi
+    private var textColor: Color {
+        if isActive {
+            return .white
+        } else if isCompleted {
+            return .white.opacity(0.8)
+        } else {
+            return .white.opacity(0.5)
+        }
+    }
+    
+    // Açıklama rengi
+    private var descriptionColor: Color {
+        if isActive {
+            return .white.opacity(0.8)
+        } else if isCompleted {
+            return .white.opacity(0.6)
+        } else {
+            return .white.opacity(0.3)
         }
     }
 }
@@ -649,6 +830,9 @@ struct ReportCard: View {
         )
     }
 }
+
+// MARK: - Proposal WebView
+
 
 #Preview {
     RouteDetailView(route: Route.preview)

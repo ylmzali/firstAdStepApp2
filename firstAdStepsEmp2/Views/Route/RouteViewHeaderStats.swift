@@ -19,6 +19,7 @@ struct RouteViewHeaderStats: View {
     private var statsContainer: some View {
         HStack(spacing: 16) {
             totalRoutesBox
+            activeRoutesBox
             pendingRoutesBox
             completedRoutesBox
         }
@@ -29,29 +30,56 @@ struct RouteViewHeaderStats: View {
     
     private var totalRoutesBox: some View {
         RouteFuturisticStatBox(
-            icon: "bolt.fill",
+            icon: "megaphone.fill",
             color: .yellow,
-            title: "Toplam Rota",
+            title: "Toplam",
             value: String(viewModel.routes.count)
+        )
+    }
+    
+    private var activeRoutesBox: some View {
+        RouteFuturisticStatBox(
+            icon: "play.circle.fill",
+            color: .green,
+            title: "Aktif",
+            value: String(activeRoutesCount)
         )
     }
     
     private var pendingRoutesBox: some View {
         RouteFuturisticStatBox(
-            icon: "eye.fill",
+            icon: "clock.circle.fill",
             color: .blue,
             title: "Bekleyen",
-            value: String(viewModel.routes.filter { $0.status == .pending }.count)
+            value: String(pendingRoutesCount)
         )
     }
     
     private var completedRoutesBox: some View {
         RouteFuturisticStatBox(
             icon: "checkmark.seal.fill",
-            color: .green,
-            title: "Tamamlandı",
-            value: String(viewModel.routes.filter { $0.status == .completed }.count)
+            color: .purple,
+            title: "Tamam",
+            value: String(completedRoutesCount)
         )
+    }
+    
+    // Computed properties for route counts
+    private var activeRoutesCount: Int {
+        viewModel.routes.filter { $0.status == .active }.count
+    }
+    
+    private var pendingRoutesCount: Int {
+        viewModel.routes.filter { 
+            $0.status == .request_received || 
+            $0.status == .plan_ready || 
+            $0.status == .payment_pending ||
+            $0.status == .plan_rejected
+        }.count
+    }
+    
+    private var completedRoutesCount: Int {
+        viewModel.routes.filter { $0.status == .completed }.count
     }
 }
 
@@ -61,7 +89,7 @@ struct RouteViewHeaderStats: View {
         userId: SessionManager.shared.currentUser?.id ?? "",
         title: "",
         description: "",
-        status: .pending,
+        status: .request_received,
         assignedDate: nil,
         completion: 0,
         createdAt: ISO8601DateFormatter().string(from: Date())

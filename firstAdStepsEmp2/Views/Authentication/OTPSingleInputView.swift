@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct OTPView: View {
+struct OTPSingleInputView: View {
     @StateObject private var viewModel = AuthViewModel()
     @EnvironmentObject private var navigationManager: NavigationManager
     
@@ -187,7 +187,7 @@ struct OTPView: View {
 }
 
 #Preview {
-    OTPView(
+    OTPSingleInputView(
         phoneNumber: "5551234567",
         countryCode: "+90",
         otpRequestId: "123456"

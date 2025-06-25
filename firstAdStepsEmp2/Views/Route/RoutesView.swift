@@ -9,7 +9,7 @@ struct RoutesView: View {
             userId: SessionManager.shared.currentUser?.id ?? "",
             title: "",
             description: "",
-            status: .pending,
+            status: .request_received,
             assignedDate: nil,
             completion: 0,
             createdAt: ISO8601DateFormatter().string(from: Date())
@@ -17,12 +17,12 @@ struct RoutesView: View {
     )
     @EnvironmentObject private var navigationManager: NavigationManager
     @State private var selectedRoute: Route?
-    @State private var viewMode: ViewMode = .grouped // Varsayılan olarak gruplanmış görünüm
+    @State private var viewMode: ViewMode = .list // Varsayılan olarak gruplanmış görünüm
 
     // Görünüm modları
     enum ViewMode: String, CaseIterable {
         case list = "Liste"
-        case grouped = "Kategoriler"
+        case grouped = "Gruplanmış"
         
         var icon: String {
             switch self {
@@ -38,11 +38,24 @@ struct RoutesView: View {
     }
     
     private var pendingRoutes: [Route] {
-        viewModel.routes.filter { $0.status == .pending }
+        viewModel.routes.filter { 
+            $0.status == .request_received || 
+            $0.status == .plan_ready || 
+            $0.status == .payment_pending ||
+            $0.status == .plan_rejected
+        }
     }
     
     private var completedRoutes: [Route] {
         viewModel.routes.filter { $0.status == .completed }
+    }
+    
+    private var cancelledRoutes: [Route] {
+        viewModel.routes.filter { $0.status == .cancelled }
+    }
+    
+    private var paymentCompletedRoutes: [Route] {
+        viewModel.routes.filter { $0.status == .payment_completed }
     }
     
     private var sharedRoutes: [Route] {
@@ -57,14 +70,14 @@ struct RoutesView: View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
-                
+
                 ScrollView {
-                    VStack(spacing: 0) {
+                    VStack(alignment: .leading, spacing: 0) {
 
                         RouteViewHeaderStats(viewModel: viewModel)
-                        
+
                         // Görünüm Seçenekleri Butonları
-                        VStack(spacing: 12) {
+                        VStack(alignment: .leading, spacing: 12) {
                             HStack(spacing: 12) {
                                 ForEach(ViewMode.allCases, id: \.self) { mode in
                                     Button(action: { viewMode = mode }) {
@@ -88,9 +101,10 @@ struct RoutesView: View {
                                     }
                                     .buttonStyle(PlainButtonStyle())
                                 }
+                                Spacer()
                             }
-                            .padding(.horizontal, 20)
-                            .padding(.top, 16)
+                            .padding()
+
                         }
 
                         if viewModel.routes.isEmpty {
@@ -244,6 +258,26 @@ struct RoutesView: View {
                     icon: "checkmark.circle.fill",
                     color: .gray,
                     routes: completedRoutes,
+                    selectedRoute: $selectedRoute
+                )
+            }
+            
+            if !paymentCompletedRoutes.isEmpty {
+                RouteCategorySection(
+                    title: "Ödeme Tamamlanan Rotalar",
+                    icon: "creditcard.circle.fill",
+                    color: .purple,
+                    routes: paymentCompletedRoutes,
+                    selectedRoute: $selectedRoute
+                )
+            }
+            
+            if !cancelledRoutes.isEmpty {
+                RouteCategorySection(
+                    title: "İptal Edilen Rotalar",
+                    icon: "xmark.circle.fill",
+                    color: .red,
+                    routes: cancelledRoutes,
                     selectedRoute: $selectedRoute
                 )
             }

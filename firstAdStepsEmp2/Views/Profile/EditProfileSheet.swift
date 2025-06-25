@@ -1,7 +1,13 @@
 import SwiftUI
 
+// MARK: - Hide Keyboard
+private func hideKeyboard() {
+    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+}
+
 struct EditProfileSheet: View {
     @EnvironmentObject private var sessionManager: SessionManager
+    @EnvironmentObject private var navigationManager: NavigationManager
     @Environment(\.dismiss) var dismiss
     @ObservedObject var userViewModel: UserViewModel
     @StateObject private var authViewModel = AuthViewModel()
@@ -9,7 +15,7 @@ struct EditProfileSheet: View {
     @State private var firstName: String = ""
     @State private var lastName: String = ""
     @State private var email: String = ""
-    @State private var phone: String = ""
+    @State private var phoneNumber: String = ""
     @State private var companyName: String = ""
     @State private var companyTaxNumber: String = ""
     @State private var companyTaxOffice: String = ""
@@ -27,6 +33,8 @@ struct EditProfileSheet: View {
     @State private var timer: Timer?
     @State private var originalPhone = ""
     @State private var originalCountryCode = ""
+    @State private var showSuccessAlert = false
+    @State private var isUpdatingProfile = false
     
     private let countries = [
         Country(code: "+90", name: "Türkiye", flag: "🇹🇷"),
@@ -73,6 +81,25 @@ struct EditProfileSheet: View {
             .onDisappear {
                 timer?.invalidate()
             }
+            .onChange(of: userViewModel.isUserUpdated) { isUpdated in
+                guard let userId = sessionManager.currentUser?.id else { return }
+
+
+                if isUpdated {
+                    showSuccessAlert = true
+                    userViewModel.resetState() // Reset the state after showing alert
+                    userViewModel.refreshUserData(userId: userId, sessionManager: sessionManager) { result in
+                        
+                    }
+                }
+            }
+            .alert("Başarılı", isPresented: $showSuccessAlert) {
+                Button("Tamam") {
+                    dismiss()
+                }
+            } message: {
+                Text("Bilgileriniz başarıyla güncellendi.")
+            }
             .overlay {
                 if sessionManager.isLoading {
                     Color.black.opacity(0.3)
@@ -94,7 +121,7 @@ struct EditProfileSheet: View {
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 
-                Text("\(selectedCountry.code) \(phone) numaralı telefonunuza gönderilen 4 haneli doğrulama kodunu giriniz.")
+                Text("\(selectedCountry.code) \(phoneNumber) numaralı telefonunuza gönderilen 4 haneli doğrulama kodunu giriniz.")
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white.opacity(0.8))
                     .padding(.horizontal)
@@ -128,53 +155,44 @@ struct EditProfileSheet: View {
     
     // MARK: - OTP Input View
     private var otpInputView: some View {
-        HStack(spacing: 12) {
-            ForEach(0..<4, id: \.self) { index in
-                TextField("", text: Binding(
-                    get: {
-                        if index < otpCode.count {
-                            return String(otpCode[otpCode.index(otpCode.startIndex, offsetBy: index)])
-                        }
-                        return ""
-                    },
-                    set: { newValue in
-                        if newValue.count <= 1 {
-                            if newValue.isEmpty {
-                                if otpCode.count > index {
-                                    otpCode = String(otpCode.prefix(index))
-                                }
-                            } else {
-                                if index < otpCode.count {
-                                    otpCode = String(otpCode.prefix(index)) + newValue + String(otpCode.suffix(from: otpCode.index(otpCode.startIndex, offsetBy: index + 1)))
-                                } else {
-                                    otpCode += newValue
-                                }
-                            }
-                        }
-                    }
-                ))
+        VStack(spacing: 12) {
+            TextField("000000", text: $otpCode)
                 .keyboardType(.numberPad)
                 .multilineTextAlignment(.center)
-                .font(.title)
-                .frame(width: 60, height: 60)
+                .font(.system(size: 32, weight: .bold, design: .monospaced))
+                .frame(height: 60)
+                .frame(maxWidth: .infinity)
                 .background(Color.white.opacity(0.1))
-                .cornerRadius(12)
+                .cornerRadius(15)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 15)
                         .stroke(Color.white.opacity(0.3), lineWidth: 1)
                 )
                 .foregroundColor(.white)
+                .onChange(of: otpCode) { newValue in
+                    // Sadece rakam girişine izin ver
+                    let filtered = newValue.filter { $0.isNumber }
+                    if filtered != newValue {
+                        otpCode = filtered
+                    }
+                    // Maksimum 6 rakam
+                    if filtered.count > 6 {
+                        otpCode = String(filtered.prefix(6))
+                    }
+                }
+            
+            // Visual OTP Display
+            HStack(spacing: 8) {
+                ForEach(0..<6, id: \.self) { index in
+                    Circle()
+                        .fill(index < otpCode.count ? Color.blue : Color.white.opacity(0.3))
+                        .frame(width: 12, height: 12)
+                        .scaleEffect(index < otpCode.count ? 1.2 : 1.0)
+                        .animation(.easeInOut(duration: 0.2), value: otpCode.count)
+                }
             }
         }
-        .onChange(of: otpCode) { newValue in
-            let filtered = newValue.filter { $0.isNumber }
-            if filtered != newValue {
-                otpCode = filtered
-            }
-            if filtered.count > 4 {
-                otpCode = String(filtered.prefix(4))
-            }
-        }
+        .padding(.horizontal, 40)
     }
     
     // MARK: - Timer View
@@ -202,10 +220,10 @@ struct EditProfileSheet: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .frame(height: 52)
-                .background(otpCode.count == 4 ? Color.blue : Color.gray)
+                .background(otpCode.count == 6 ? Color.blue : Color.gray)
                 .cornerRadius(12)
         }
-        .disabled(otpCode.count != 4 || sessionManager.isLoading)
+        .disabled(otpCode.count != 6 || sessionManager.isLoading)
     }
     
     // MARK: - Cancel Button
@@ -262,6 +280,7 @@ struct EditProfileSheet: View {
                 phoneField
             }
         }
+        .padding(.bottom)
         /*
         .padding()
         .background(
@@ -290,6 +309,7 @@ struct EditProfileSheet: View {
                 customTextField("Şirket Adresi", text: $companyAddress)
             }
         }
+        /*
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 18)
@@ -299,6 +319,7 @@ struct EditProfileSheet: View {
                         .stroke(Color.white.opacity(0.2), lineWidth: 1)
                 )
         )
+         */
     }
     
     // MARK: - Custom Text Field
@@ -342,7 +363,7 @@ struct EditProfileSheet: View {
                 UserUpdateCountryPickerView(selectedCountry: $selectedCountry, countries: countries)
             }
             
-            TextField("", text: $phone, prompt: Text("Telefon").foregroundColor(.white.opacity(0.6)))
+            TextField("", text: $phoneNumber, prompt: Text("Telefon").foregroundColor(.white.opacity(0.6)))
                 .foregroundColor(.white)
                 .textFieldStyle(PlainTextFieldStyle())
                 .keyboardType(.numberPad)
@@ -361,10 +382,11 @@ struct EditProfileSheet: View {
     // MARK: - Load User Data
     private func loadUserData() {
         let user = sessionManager.currentUser
+
         firstName = user?.firstName ?? ""
         lastName = user?.lastName ?? ""
         email = user?.email ?? ""
-        phone = user?.phoneNumber ?? ""
+        phoneNumber = user?.phoneNumber ?? ""
         companyName = user?.companyName ?? ""
         companyTaxNumber = user?.companyTaxNumber ?? ""
         companyTaxOffice = user?.companyTaxOffice ?? ""
@@ -376,13 +398,13 @@ struct EditProfileSheet: View {
         }
         
         // Orijinal değerleri sakla
-        originalPhone = phone
+        originalPhone = phoneNumber
         originalCountryCode = selectedCountry.code
     }
     
     // MARK: - Check Phone Change and Save
     private func checkPhoneChangeAndSave() {
-        let currentPhoneWithCode = "\(selectedCountry.code)\(phone)"
+        let currentPhoneWithCode = "\(selectedCountry.code)\(phoneNumber)"
         let originalPhoneWithCode = "\(originalCountryCode)\(originalPhone)"
         
         if currentPhoneWithCode != originalPhoneWithCode {
@@ -397,7 +419,7 @@ struct EditProfileSheet: View {
     // MARK: - Request OTP
     private func requestOTP() {
         authViewModel.requestOTP(
-            phoneNumber: phone,
+            phoneNumber: phoneNumber,
             countryCode: selectedCountry.code
         ) { result in
             switch result {
@@ -415,7 +437,7 @@ struct EditProfileSheet: View {
     // MARK: - Verify OTP
     private func verifyOTP() {
         authViewModel.verifyOTP(
-            phoneNumber: phone,
+            phoneNumber: phoneNumber,
             countryCode: selectedCountry.code,
             otpRequestId: otpRequestId,
             otpCode: otpCode
@@ -450,30 +472,41 @@ struct EditProfileSheet: View {
     private func saveUserProfile() {
         guard let userId = sessionManager.currentUser?.id else { return }
         
-        userViewModel.saveUserProfile(
+        isUpdatingProfile = false
+        
+        userViewModel.updateUser(
             userId: userId,
             firstName: firstName,
             lastName: lastName,
             email: email,
-            phone: phone,
             countryCode: selectedCountry.code,
+            phoneNumber: phoneNumber,
             companyName: companyName,
             companyTaxNumber: companyTaxNumber,
             companyTaxOffice: companyTaxOffice,
-            companyAddress: companyAddress,
-            sessionManager: sessionManager
-        ) { success in
-            if success {
-                dismiss()
+            companyAddress: companyAddress
+        ) { result in
+            switch result {
+            case .success(let data):
+                if let isUserUpdated = data.isUserUpdated,
+                   isUserUpdated == true,
+                   let user = data.user {
+                    isUpdatingProfile = true
+                    userViewModel.isUserUpdated = true
+                    print("✅ User update successfully")
+                    print("📱 User data: \(user)")
+                } else {
+                    print("❌ User update failed")
+                    userViewModel.isUserUpdated = false
+                }
+            case .failure:
+                // Error is handled in ViewModel and shown via errorMessage
+                break
             }
         }
     }
     
-    // MARK: - Hide Keyboard
-    private func hideKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-    }
-} 
+}
 
 
 // MARK: - Country Picker View

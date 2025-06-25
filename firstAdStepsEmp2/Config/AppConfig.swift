@@ -7,6 +7,13 @@ enum AppConfig {
         static let appToken = "cd786d6d-daf7-4e3f-bff2-24c144c9f013"
         static let tokenHeader = "app_token"
     }
+
+    enum SMS {
+        // Twilio API kullanımı
+        static let twillioAccountSid = "***REMOVED***"
+        static let twillioAuthToken = "***REMOVED***"
+        static let twillioVerifyServiceSid = "***REMOVED***"
+    }
     
     // API Endpoints
     enum Endpoints {

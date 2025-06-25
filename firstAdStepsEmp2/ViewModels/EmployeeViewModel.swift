@@ -17,12 +17,14 @@ class EmployeeViewModel: ObservableObject {
             return
         }
         
-        isLoading = true
+        let userId = currentUser.id
+        
+        SessionManager.shared.isLoading = true
         errorMessage = nil
         
-        employeeService.getCompanyEmployees(companyTaxNumber: companyTaxNumber) { [weak self] result in
+        employeeService.getCompanyEmployees(userId: userId,companyTaxNumber: companyTaxNumber) { [weak self] result in
             DispatchQueue.main.async {
-                self?.isLoading = false
+                SessionManager.shared.isLoading = false
                 
                 switch result {
                 case .success(let response):

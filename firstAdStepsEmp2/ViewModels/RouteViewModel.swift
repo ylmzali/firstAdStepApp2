@@ -26,7 +26,7 @@ class RouteViewModel: ObservableObject {
             userId: SessionManager.shared.currentUser?.id ?? "",
             title: "",
             description: "",
-            status: .pending,
+            status: .request_received,
             assignedDate: nil,
             completion: 0,
             shareWithEmployees: false,
@@ -192,6 +192,119 @@ class RouteViewModel: ObservableObject {
         return true
     }
      */
+
+    // MARK: - Plan Management Functions
+    
+    func approvePlan(
+        routeId: String,
+        note: String? = nil,
+        completion: @escaping (Result<Bool, ServiceError>) -> Void
+    ) {
+        SessionManager.shared.isLoading = true
+        errorMessage = nil
+        
+        // TODO: Backend API call for plan approval
+        // Bu fonksiyon plan_ready durumundaki rotayı payment_pending durumuna geçirir
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            SessionManager.shared.isLoading = false
+            
+            // Simulated success - in real app, this would be API call
+            if let index = self.routes.firstIndex(where: { $0.id == routeId }) {
+                self.routes[index].status = .payment_pending
+                completion(.success(true))
+            } else {
+                self.errorMessage = "Rota bulunamadı"
+                completion(.failure(.custom(message: "Rota bulunamadı")))
+            }
+        }
+    }
+    
+    func rejectPlan(
+        routeId: String,
+        rejectionType: PlanRejectionType,
+        note: String? = nil,
+        completion: @escaping (Result<Bool, ServiceError>) -> Void
+    ) {
+        SessionManager.shared.isLoading = true
+        errorMessage = nil
+        
+        // TODO: Backend API call for plan rejection
+        // Bu fonksiyon plan_ready durumundaki rotayı plan_rejected durumuna geçirir
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            SessionManager.shared.isLoading = false
+            
+            // Simulated success - in real app, this would be API call
+            if let index = self.routes.firstIndex(where: { $0.id == routeId }) {
+                self.routes[index].status = .plan_rejected
+                self.routes[index].proposalRejectionNote = note
+                self.routes[index].proposalRejectionDate = ISO8601DateFormatter().string(from: Date())
+                completion(.success(true))
+            } else {
+                self.errorMessage = "Rota bulunamadı"
+                completion(.failure(.custom(message: "Rota bulunamadı")))
+            }
+        }
+    }
+    
+    func cancelRoute(
+        routeId: String,
+        completion: @escaping (Result<Bool, ServiceError>) -> Void
+    ) {
+        SessionManager.shared.isLoading = true
+        errorMessage = nil
+        
+        // TODO: Backend API call for route cancellation
+        // Bu fonksiyon rotayı cancelled durumuna geçirir
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            SessionManager.shared.isLoading = false
+            
+            // Simulated success - in real app, this would be API call
+            if let index = self.routes.firstIndex(where: { $0.id == routeId }) {
+                self.routes[index].status = .cancelled
+                completion(.success(true))
+            } else {
+                self.errorMessage = "Rota bulunamadı"
+                completion(.failure(.custom(message: "Rota bulunamadı")))
+            }
+        }
+    }
+    
+    func requestNewPlan(
+        routeId: String,
+        completion: @escaping (Result<Bool, ServiceError>) -> Void
+    ) {
+        SessionManager.shared.isLoading = true
+        errorMessage = nil
+        
+        // TODO: Backend API call for new plan request
+        // Bu fonksiyon plan_rejected durumundaki rotayı request_received durumuna geçirir
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            SessionManager.shared.isLoading = false
+            
+            // Simulated success - in real app, this would be API call
+            if let index = self.routes.firstIndex(where: { $0.id == routeId }) {
+                self.routes[index].status = .request_received
+                self.routes[index].proposalRejectionNote = nil
+                self.routes[index].proposalRejectionDate = nil
+                completion(.success(true))
+            } else {
+                self.errorMessage = "Rota bulunamadı"
+                completion(.failure(.custom(message: "Rota bulunamadı")))
+            }
+        }
+    }
+}
+
+// MARK: - Supporting Enums
+
+enum PlanRejectionType {
+    case withNote
+    case requestNewPlan
+    case cancelCompletely
 }
 
 extension Encodable {

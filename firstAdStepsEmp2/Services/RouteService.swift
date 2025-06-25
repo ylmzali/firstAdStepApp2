@@ -128,6 +128,24 @@ class RouteService {
                         completion(.success(result))
                     } catch {
                         print("❌ Decoding error: \(error)")
+                        if let decodingError = error as? DecodingError {
+                            switch decodingError {
+                            case .dataCorrupted(let context):
+                                print("❌ Data corrupted: \(context.debugDescription)")
+                                print("❌ Coding path: \(context.codingPath)")
+                            case .keyNotFound(let key, let context):
+                                print("❌ Key not found: \(key.stringValue)")
+                                print("❌ Coding path: \(context.codingPath)")
+                            case .typeMismatch(let type, let context):
+                                print("❌ Type mismatch: expected \(type)")
+                                print("❌ Coding path: \(context.codingPath)")
+                            case .valueNotFound(let type, let context):
+                                print("❌ Value not found: expected \(type)")
+                                print("❌ Coding path: \(context.codingPath)")
+                            @unknown default:
+                                print("❌ Unknown decoding error")
+                            }
+                        }
                         completion(.failure(.invalidData))
                     }
                 case 401:

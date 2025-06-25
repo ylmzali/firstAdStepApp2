@@ -24,6 +24,48 @@ class UserService {
         )
     }
     
+    // MARK: - Register
+    func register(
+        phoneNumber: String,
+        countryCode: String,
+        firstName: String,
+        lastName: String,
+        email: String,
+        companyName: String?,
+        companyTaxNumber: String?,
+        companyTaxOffice: String?,
+        companyAddress: String?,
+        completion: @escaping (Result<UserRegisterResponse, ServiceError>) -> Void
+    ) {
+        var parameters: [String: Any] = [
+            "phone_number": phoneNumber,
+            "country_code": countryCode,
+            "first_name": firstName,
+            "last_name": lastName,
+            "email": email
+        ]
+        
+        if let companyName = companyName {
+            parameters["company_name"] = companyName
+        }
+        if let companyTaxNumber = companyTaxNumber {
+            parameters["company_tax_number"] = companyTaxNumber
+        }
+        if let companyTaxOffice = companyTaxOffice {
+            parameters["company_tax_office"] = companyTaxOffice
+        }
+        if let companyAddress = companyAddress {
+            parameters["company_address"] = companyAddress
+        }
+        
+        makeRequest(
+            endpoint: "adduser",
+            method: .post,
+            parameters: parameters,
+            completion: completion
+        )
+    }
+    
     // MARK: - Update User
     func updateUser(
         user: User,
@@ -154,17 +196,32 @@ struct UserGetError: Codable {
     let details: String
 }
 
+
+struct UserRegisterResponse: Codable {
+    let status: String
+    let data: UserRegisterData?
+    let error: UserRegisterError?
+}
+struct UserRegisterData: Codable {
+    let isUserSaved: Bool?
+    let user: User?
+}
+struct UserRegisterError: Codable {
+    let code: String
+    let message: String
+    let details: String
+}
+
+
 struct UserUpdateResponse: Codable {
     let status: String
     let data: UserUpdateData?
     let error: UserUpdateError?
 }
-
 struct UserUpdateData: Codable {
     let isUserUpdated: Bool?
     let user: User?
 }
-
 struct UserUpdateError: Codable {
     let code: String
     let message: String

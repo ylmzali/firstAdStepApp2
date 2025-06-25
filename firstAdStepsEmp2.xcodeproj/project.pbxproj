@@ -32,6 +32,7 @@
 		C11B49E12E0AA5BD004A3BFC /* EmployeeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49E02E0AA5BD004A3BFC /* EmployeeService.swift */; };
 		C11B49E32E0AC1AC004A3BFC /* RouteCreationSuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49E22E0AC1AC004A3BFC /* RouteCreationSuccessView.swift */; };
 		C11B49E52E0AC6E8004A3BFC /* RouteProposalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49E42E0AC6E8004A3BFC /* RouteProposalView.swift */; };
+		C11B49E72E0AE728004A3BFC /* WorkPlanDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B49E62E0AE728004A3BFC /* WorkPlanDetailView.swift */; };
 		C13B94112DFC614E007BC349 /* firstAdStepsEmp2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B94102DFC614E007BC349 /* firstAdStepsEmp2App.swift */; };
 		C13B94132DFC614E007BC349 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B94122DFC614E007BC349 /* ContentView.swift */; };
 		C13B94152DFC6150007BC349 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C13B94142DFC6150007BC349 /* Assets.xcassets */; };
@@ -46,7 +47,6 @@
 		C13B944A2DFC623F007BC349 /* CentralErrorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B94472DFC623F007BC349 /* CentralErrorManager.swift */; };
 		C13B944B2DFC623F007BC349 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B94482DFC623F007BC349 /* Enums.swift */; };
 		C13B94512DFC62D4007BC349 /* AntDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B944F2DFC62D4007BC349 /* AntDesign.swift */; };
-		C13B945E2DFC631C007BC349 /* OTPView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B94582DFC631C007BC349 /* OTPView.swift */; };
 		C13B945F2DFC631C007BC349 /* PhoneVerificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B94592DFC631C007BC349 /* PhoneVerificationView.swift */; };
 		C13B94602DFC631C007BC349 /* RegisterFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B945A2DFC631C007BC349 /* RegisterFormView.swift */; };
 		C13B94642DFC6471007BC349 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B94622DFC6471007BC349 /* Helpers.swift */; };
@@ -67,6 +67,7 @@
 		C13B94892DFCC5C9007BC349 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B94882DFCC5C9007BC349 /* AuthViewModel.swift */; };
 		C13B948B2DFDA572007BC349 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B948A2DFDA572007BC349 /* CustomTextField.swift */; };
 		C13B948D2DFDAFA5007BC349 /* ErrorResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B948C2DFDAFA5007BC349 /* ErrorResponse.swift */; };
+		C1C29A882E0C44F500FF7C0B /* OTPView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C29A872E0C44F500FF7C0B /* OTPView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -112,6 +113,7 @@
 		C11B49E02E0AA5BD004A3BFC /* EmployeeService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmployeeService.swift; sourceTree = "<group>"; };
 		C11B49E22E0AC1AC004A3BFC /* RouteCreationSuccessView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteCreationSuccessView.swift; sourceTree = "<group>"; };
 		C11B49E42E0AC6E8004A3BFC /* RouteProposalView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteProposalView.swift; sourceTree = "<group>"; };
+		C11B49E62E0AE728004A3BFC /* WorkPlanDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WorkPlanDetailView.swift; sourceTree = "<group>"; };
 		C13B940D2DFC614E007BC349 /* firstAdStepsEmp2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = firstAdStepsEmp2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C13B94102DFC614E007BC349 /* firstAdStepsEmp2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = firstAdStepsEmp2App.swift; sourceTree = "<group>"; };
 		C13B94122DFC614E007BC349 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -130,7 +132,6 @@
 		C13B94472DFC623F007BC349 /* CentralErrorManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CentralErrorManager.swift; sourceTree = "<group>"; };
 		C13B94482DFC623F007BC349 /* Enums.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
 		C13B944F2DFC62D4007BC349 /* AntDesign.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AntDesign.swift; sourceTree = "<group>"; };
-		C13B94582DFC631C007BC349 /* OTPView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OTPView.swift; sourceTree = "<group>"; };
 		C13B94592DFC631C007BC349 /* PhoneVerificationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationView.swift; sourceTree = "<group>"; };
 		C13B945A2DFC631C007BC349 /* RegisterFormView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegisterFormView.swift; sourceTree = "<group>"; };
 		C13B94622DFC6471007BC349 /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
@@ -151,6 +152,7 @@
 		C13B94882DFCC5C9007BC349 /* AuthViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		C13B948A2DFDA572007BC349 /* CustomTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
 		C13B948C2DFDAFA5007BC349 /* ErrorResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorResponse.swift; sourceTree = "<group>"; };
+		C1C29A872E0C44F500FF7C0B /* OTPView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTPView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,6 +203,7 @@
 				C11B49D62E09C4D9004A3BFC /* RouteFuturisticStatBox.swift */,
 				C11B49E42E0AC6E8004A3BFC /* RouteProposalView.swift */,
 				C11B49D82E0A9597004A3BFC /* RouteViewHeaderStats.swift */,
+				C11B49E62E0AE728004A3BFC /* WorkPlanDetailView.swift */,
 			);
 			path = Route;
 			sourceTree = "<group>";
@@ -346,9 +349,9 @@
 		C13B945B2DFC631C007BC349 /* Authentication */ = {
 			isa = PBXGroup;
 			children = (
-				C13B94582DFC631C007BC349 /* OTPView.swift */,
 				C13B94592DFC631C007BC349 /* PhoneVerificationView.swift */,
 				C13B945A2DFC631C007BC349 /* RegisterFormView.swift */,
+				C1C29A872E0C44F500FF7C0B /* OTPView.swift */,
 			);
 			path = Authentication;
 			sourceTree = "<group>";
@@ -524,9 +527,9 @@
 				C13B945F2DFC631C007BC349 /* PhoneVerificationView.swift in Sources */,
 				C13B94402DFC61BE007BC349 /* AppConfig.swift in Sources */,
 				C100046C2DFE59FA003D5C86 /* RouteService.swift in Sources */,
-				C13B945E2DFC631C007BC349 /* OTPView.swift in Sources */,
 				C13B94782DFC83A8007BC349 /* HomeView.swift in Sources */,
 				C13B947C2DFC8650007BC349 /* NotificationManager.swift in Sources */,
+				C1C29A882E0C44F500FF7C0B /* OTPView.swift in Sources */,
 				C13B94602DFC631C007BC349 /* RegisterFormView.swift in Sources */,
 				C11B49D92E0A9597004A3BFC /* RouteViewHeaderStats.swift in Sources */,
 				C13B94652DFC6471007BC349 /* LoadingView.swift in Sources */,
@@ -564,6 +567,7 @@
 				C10004712DFED648003D5C86 /* Route.swift in Sources */,
 				C13B94672DFC6CB0007BC349 /* AuthService.swift in Sources */,
 				C10004622DFE438D003D5C86 /* MainView.swift in Sources */,
+				C11B49E72E0AE728004A3BFC /* WorkPlanDetailView.swift in Sources */,
 				C13B947A2DFC85D4007BC349 /* AppStateManager.swift in Sources */,
 				C10004732E001EBB003D5C86 /* RouteDetailView.swift in Sources */,
 				C11B49C62E08A470004A3BFC /* UserService.swift in Sources */,

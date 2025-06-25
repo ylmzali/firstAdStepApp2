@@ -52,7 +52,7 @@ struct OTPError: Codable {
     let details: String
 }
 
-
+// OTP VERIFY
 struct OTPVerifyResponse: Codable {
     let status: String
     let data: OTPVerifyData?
@@ -67,23 +67,6 @@ struct OTPVerifyError: Codable {
     let message: String
     let details: String
 }
-
-struct OTPRegisterResponse: Codable {
-    let status: String
-    let data: OTPRegisterData?
-    let error: OTPRegisterError?
-}
-struct OTPRegisterData: Codable {
-    let isUserSaved: Bool?
-    let user: User?
-}
-struct OTPRegisterError: Codable {
-    let code: String
-    let message: String
-    let details: String
-}
-
-
 
 // ROUTE GET
 struct RouteGetResponse: Codable {
@@ -100,6 +83,7 @@ struct RouteGetError: Codable {
     let message: String
     let details: String
 }
+
 // ROUTES GET
 struct RoutesGetResponse: Codable {
     let status: String

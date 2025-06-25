@@ -9,11 +9,13 @@ class EmployeeService {
     
     // MARK: - Get Company Employees
     func getCompanyEmployees(
+        userId: String,
         companyTaxNumber: String,
         completion: @escaping (Result<EmployeeListResponse, ServiceError>) -> Void
     ) {
         let parameters = [
-            "company_tax_number": companyTaxNumber
+            "company_tax_number": companyTaxNumber,
+            "user_id": userId
         ]
         
         makeRequest(

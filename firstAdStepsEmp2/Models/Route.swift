@@ -2,31 +2,37 @@ import Foundation
 import SwiftUI
 
 enum RouteStatus: String, Codable {
-    case pending = "pending"           // Rota oluşturuldu
-    case proposal_pending = "proposal_pending"  // Çalışma planı hazırlanıyor
-    case proposal_ready = "proposal_ready"  // Çalışma planı hazır, firma onayı bekleniyor
-    case proposal_approved = "proposal_approved"  // Çalışma planı onaylandı, ödeme bekleniyor
-    case payment_pending = "payment_pending"  // Ödeme bekleniyor
-    case payment_completed = "payment_completed"  // Ödeme tamamlandı, son onay bekleniyor
-    case final_approval = "final_approval"  // Son onay, canlı takip öncesi
-    case scheduled = "scheduled"       // Tarih atandı, başlama bekleniyor
-    case active = "active"             // Aktif, canlı takip edilebilir
-    case paused = "paused"             // Duraklatıldı
-    case completed = "completed"       // Tamamlandı
-    case cancelled = "cancelled"       // İptal edildi
+    case request_received = "request_received"           // 1. Reklam talebi alındı
+    case plan_ready = "plan_ready"                       // 2. Plan hazırlandı
+    case payment_pending = "payment_pending"             // 3.1. Plan onaylandı, ödeme bekleniyor
+    case plan_rejected = "plan_rejected"                 // 3.2. Plan reddedildi
+    case payment_completed = "payment_completed"         // 4. Ödeme alındı, yayın planına alındı
+    case active = "active"                               // Aktif yayın
+    case completed = "completed"                         // Tamamlandı
+    case cancelled = "cancelled"                         // İptal edildi
+    
+    // Custom decoder for unknown status values
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        
+        // Try to create from raw value, fallback to request_received if unknown
+        if let status = RouteStatus(rawValue: rawValue) {
+            self = status
+        } else {
+            print("⚠️ Unknown status received from backend: '\(rawValue)', falling back to request_received")
+            self = .request_received
+        }
+    }
     
     var statusColor: Color {
         switch self {
-        case .pending: return .gray
-        case .proposal_pending: return .blue
-        case .proposal_ready: return .orange
-        case .proposal_approved: return .purple
-        case .payment_pending: return .yellow
+        case .request_received: return .gray
+        case .plan_ready: return .blue
+        case .payment_pending: return .orange
+        case .plan_rejected: return .red
         case .payment_completed: return .green
-        case .final_approval: return .red
-        case .scheduled: return .purple
         case .active: return .green
-        case .paused: return .gray
         case .completed: return .blue
         case .cancelled: return .red
         }
@@ -34,26 +40,18 @@ enum RouteStatus: String, Codable {
     
     var statusDescription: String {
         switch self {
-        case .pending:
-            return "Rota oluşturuldu"
-        case .proposal_pending:
-            return "Çalışma planı hazırlanıyor"
-        case .proposal_ready:
-            return "Çalışma planı hazır"
-        case .proposal_approved:
-            return "Plan onaylandı"
+        case .request_received:
+            return "Reklam talebi alındı"
+        case .plan_ready:
+            return "Plan hazırlandı"
         case .payment_pending:
-            return "Ödeme bekleniyor"
+            return "Plan onaylandı, ödeme bekleniyor"
+        case .plan_rejected:
+            return "Plan reddedildi"
         case .payment_completed:
-            return "Ödeme tamamlandı"
-        case .final_approval:
-            return "Son onay bekleniyor"
-        case .scheduled:
-            return "Tarih atandı"
+            return "Ödeme alındı, yayın planına alındı"
         case .active:
-            return "Aktif"
-        case .paused:
-            return "Duraklatıldı"
+            return "Aktif yayın"
         case .completed:
             return "Tamamlandı"
         case .cancelled:
@@ -65,40 +63,59 @@ enum RouteStatus: String, Codable {
         return self == .active
     }
     
-    var isWaitingForProposal: Bool {
-        return self == .proposal_pending || self == .proposal_ready
+    var isPlanPhase: Bool {
+        return self == .plan_ready
     }
     
-    var isWaitingForPayment: Bool {
+    var isPaymentPhase: Bool {
         return self == .payment_pending
     }
     
-    var isWaitingForApproval: Bool {
-        return self == .proposal_approved || self == .final_approval
+    var isRejected: Bool {
+        return self == .plan_rejected
     }
     
-    var isScheduled: Bool {
-        return self == .scheduled
+    var isActive: Bool {
+        return self == .active || self == .completed
+    }
+    
+    var canCancel: Bool {
+        return self == .request_received || self == .plan_ready || self == .payment_pending
     }
     
     var isInProposalPhase: Bool {
-        return self == .proposal_pending || self == .proposal_ready || self == .proposal_approved
+        self == .request_received || self == .plan_ready || self == .plan_rejected
     }
     
-    var isAfterProposal: Bool {
-        return self == .proposal_approved || self == .payment_pending || self == .payment_completed || self == .final_approval || self == .scheduled || self == .active || self == .completed
+    // MARK: - Workflow Order Properties
+    
+    /// Her status'un workflow'daki sırası (1'den başlar)
+    var workflowOrder: Int {
+        switch self {
+        case .request_received: return 1
+        case .plan_ready: return 2
+        case .payment_pending: return 3
+        case .payment_completed: return 4
+        case .active: return 5
+        case .completed: return 6
+        case .plan_rejected: return 1 // Plan reddedildiğinde yeniden baştan başlar
+        case .cancelled: return 0 // İptal edildi
+        }
     }
     
-    var isAfterApproval: Bool {
-        return self == .payment_pending || self == .payment_completed || self == .final_approval || self == .scheduled || self == .active || self == .completed
+    /// Belirli bir adımın tamamlanıp tamamlanmadığını kontrol eder
+    func isStepCompleted(_ stepOrder: Int) -> Bool {
+        return self.workflowOrder > stepOrder
     }
     
-    var isAfterPayment: Bool {
-        return self == .payment_completed || self == .final_approval || self == .scheduled || self == .active || self == .completed
+    /// Belirli bir adımın aktif olup olmadığını kontrol eder
+    func isStepActive(_ stepOrder: Int) -> Bool {
+        return self.workflowOrder == stepOrder
     }
     
-    var isAfterFinalApproval: Bool {
-        return self == .scheduled || self == .active || self == .completed
+    /// Belirli bir adımın gelecekte olup olmadığını kontrol eder
+    func isStepFuture(_ stepOrder: Int) -> Bool {
+        return self.workflowOrder < stepOrder
     }
 }
 
@@ -145,6 +162,8 @@ struct Route: Codable, Identifiable {
     var shareWithEmployees: Bool
     var sharedEmployeeIds: [String] // Seçilen çalışanların ID'leri
     var createdAt: String
+    var proposalRejectionNote: String? // Plan reddetme notu
+    var proposalRejectionDate: String? // Plan reddetme tarihi
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -157,6 +176,8 @@ struct Route: Codable, Identifiable {
         case shareWithEmployees
         case sharedEmployeeIds
         case createdAt = "createdAt"
+        case proposalRejectionNote
+        case proposalRejectionDate
     }
 
     // Normal initializer
@@ -197,6 +218,8 @@ struct Route: Codable, Identifiable {
         shareWithEmployees = try container.decodeIfPresent(Bool.self, forKey: .shareWithEmployees) ?? false
         sharedEmployeeIds = try container.decodeIfPresent([String].self, forKey: .sharedEmployeeIds) ?? []
         createdAt = try container.decode(String.self, forKey: .createdAt)
+        proposalRejectionNote = try container.decodeIfPresent(String.self, forKey: .proposalRejectionNote)
+        proposalRejectionDate = try container.decodeIfPresent(String.self, forKey: .proposalRejectionDate)
     }
 
     // MARK: - Computed Properties for Formatted Dates
@@ -280,14 +303,12 @@ struct Route: Codable, Identifiable {
     var liveTrackingButtonColor: Color {
         if canStartLiveTracking {
             return .green
-        } else if status.isInProposalPhase {
+        } else if status.isPlanPhase {
             return .blue
-        } else if status.isWaitingForPayment {
+        } else if status.isPaymentPhase {
             return .yellow
-        } else if status.isWaitingForApproval {
+        } else if status.isRejected {
             return .red
-        } else if status.isScheduled {
-            return .purple
         } else {
             return .gray
         }
@@ -300,8 +321,8 @@ struct Route: Codable, Identifiable {
         title: "Kadıköy - Üsküdar Kadıköy'den Üsküdar'a giden rota Kadıköy'den Üsküdar'a giden rota",
         description: "Kadıköy - Üsküdar Kadıköy'den Üsküdar'a giden rota Kadıköy'den Üsküdar'a giden rota",
         status: .active,
-        // assignedDate: "2024-03-20T12:00:00Z",
-        assignedDate: nil,
+        assignedDate: "2024-03-20T12:00:00Z",
+        // assignedDate: nil,
         completion: 80,
         shareWithEmployees: true,
         sharedEmployeeIds: ["1", "2", "1233"],

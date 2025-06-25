@@ -34,7 +34,7 @@ class AuthService {
         otpCode: String,
         completion: @escaping (Result<OTPVerifyResponse, ServiceError>) -> Void
     ) {
-        guard otpCode.count == 4 else {
+        guard otpCode.count == 6 else {
             completion(.failure(.invalidOTPLength))
             return
         }
@@ -48,48 +48,6 @@ class AuthService {
         
         makeRequest(
             endpoint: "verifyotp",
-            method: .post,
-            parameters: parameters,
-            completion: completion
-        )
-    }
-    
-    // MARK: - Register
-    func register(
-        phoneNumber: String,
-        countryCode: String,
-        firstName: String,
-        lastName: String,
-        email: String,
-        companyName: String?,
-        companyTaxNumber: String?,
-        companyTaxOffice: String?,
-        companyAddress: String?,
-        completion: @escaping (Result<OTPRegisterResponse, ServiceError>) -> Void
-    ) {
-        var parameters: [String: Any] = [
-            "phone_number": phoneNumber,
-            "country_code": countryCode,
-            "first_name": firstName,
-            "last_name": lastName,
-            "email": email
-        ]
-        
-        if let companyName = companyName {
-            parameters["company_name"] = companyName
-        }
-        if let companyTaxNumber = companyTaxNumber {
-            parameters["company_tax_number"] = companyTaxNumber
-        }
-        if let companyTaxOffice = companyTaxOffice {
-            parameters["company_tax_office"] = companyTaxOffice
-        }
-        if let companyAddress = companyAddress {
-            parameters["company_address"] = companyAddress
-        }
-        
-        makeRequest(
-            endpoint: "adduser",
             method: .post,
             parameters: parameters,
             completion: completion

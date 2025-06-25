@@ -3,6 +3,7 @@ import SwiftUI
 struct RegisterFormView: View {
     @EnvironmentObject private var navigationManager: NavigationManager
     @StateObject private var viewModel = AuthViewModel()
+    @StateObject private var userViewModel = UserViewModel()
     @EnvironmentObject private var sessionManager: SessionManager
     
     let phoneNumber: String
@@ -44,7 +45,7 @@ struct RegisterFormView: View {
                 // Kayıt ol butonu
                 Button(action: {
                     Task {
-                        await viewModel.register(
+                        await userViewModel.register(
                             phoneNumber: phoneNumber,
                             countryCode: countryCode,
                             firstName: firstName,

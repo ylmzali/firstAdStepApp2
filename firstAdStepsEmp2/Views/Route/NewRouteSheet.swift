@@ -9,7 +9,7 @@ struct NewRouteSheet: View {
             userId: SessionManager.shared.currentUser?.id ?? "",
             title: "",
             description: "",
-            status: .pending,
+            status: .request_received,
             assignedDate: nil,
             completion: 0,
             shareWithEmployees: false,
@@ -57,6 +57,8 @@ struct NewRouteSheet: View {
             }
             .navigationTitle("Yeni Rota")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(Color.black, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("İptal") {
@@ -71,6 +73,22 @@ struct NewRouteSheet: View {
                     }
                     .foregroundColor(.white)
                     .disabled(viewModel.formVal.title.isEmpty)
+                }
+                
+                ToolbarItem(placement: .keyboard) {
+                    HStack {
+                        Spacer()
+                        Button("Kapat") {
+                            hideKeyboard()
+                        }
+                        .foregroundColor(.black)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.white.opacity(0.2))
+                        )
+                    }
                 }
             }
             .onAppear {
@@ -379,4 +397,11 @@ struct NewRouteSheet: View {
 
 #Preview {
     NewRouteSheet()
+} 
+
+// MARK: - Helper Functions
+extension NewRouteSheet {
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
 } 
