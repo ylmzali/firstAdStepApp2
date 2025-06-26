@@ -9,10 +9,10 @@ enum AppConfig {
     }
 
     enum SMS {
-        // Twilio API kullanımı
-        static let twillioAccountSid = "***REMOVED***"
-        static let twillioAuthToken = "***REMOVED***"
-        static let twillioVerifyServiceSid = "***REMOVED***"
+        // Twilio API kullanımı - Environment variables'dan alınacak
+        static let twillioAccountSid = ProcessInfo.processInfo.environment["TWILIO_ACCOUNT_SID"] ?? ""
+        static let twillioAuthToken = ProcessInfo.processInfo.environment["TWILIO_AUTH_TOKEN"] ?? ""
+        static let twillioVerifyServiceSid = ProcessInfo.processInfo.environment["TWILIO_VERIFY_SERVICE_SID"] ?? ""
     }
     
     // API Endpoints
