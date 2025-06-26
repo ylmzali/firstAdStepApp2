@@ -6,15 +6,8 @@ enum AppConfig {
         static let baseURL = "https://buisyurur.com/api"
         static let appToken = "cd786d6d-daf7-4e3f-bff2-24c144c9f013"
         static let tokenHeader = "app_token"
-    }
+    } 
 
-    enum SMS {
-        // Twilio API kullanımı - Environment variables'dan alınacak
-        static let twillioAccountSid = ProcessInfo.processInfo.environment["TWILIO_ACCOUNT_SID"] ?? ""
-        static let twillioAuthToken = ProcessInfo.processInfo.environment["TWILIO_AUTH_TOKEN"] ?? ""
-        static let twillioVerifyServiceSid = ProcessInfo.processInfo.environment["TWILIO_VERIFY_SERVICE_SID"] ?? ""
-    }
-    
     // API Endpoints
     enum Endpoints {
         static let requestOTP = "/sendotp"
