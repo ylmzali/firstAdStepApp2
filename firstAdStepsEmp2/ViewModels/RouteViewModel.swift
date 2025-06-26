@@ -313,3 +313,6 @@ extension Encodable {
         return (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
     }
 }
+
+// MARK: - Supporting Types
+

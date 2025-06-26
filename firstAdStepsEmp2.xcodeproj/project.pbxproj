@@ -67,7 +67,9 @@
 		C13B94892DFCC5C9007BC349 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B94882DFCC5C9007BC349 /* AuthViewModel.swift */; };
 		C13B948B2DFDA572007BC349 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B948A2DFDA572007BC349 /* CustomTextField.swift */; };
 		C13B948D2DFDAFA5007BC349 /* ErrorResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13B948C2DFDAFA5007BC349 /* ErrorResponse.swift */; };
+		C1A229352E0D66C9001B7894 /* NotificationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A229342E0D66C9001B7894 /* NotificationListView.swift */; };
 		C1C29A882E0C44F500FF7C0B /* OTPView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C29A872E0C44F500FF7C0B /* OTPView.swift */; };
+		C1C29A8A2E0CAA2A00FF7C0B /* DebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C29A892E0CAA2A00FF7C0B /* DebugView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -152,7 +154,10 @@
 		C13B94882DFCC5C9007BC349 /* AuthViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		C13B948A2DFDA572007BC349 /* CustomTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
 		C13B948C2DFDAFA5007BC349 /* ErrorResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorResponse.swift; sourceTree = "<group>"; };
+		C1A229332E0D6602001B7894 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		C1A229342E0D66C9001B7894 /* NotificationListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationListView.swift; sourceTree = "<group>"; };
 		C1C29A872E0C44F500FF7C0B /* OTPView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTPView.swift; sourceTree = "<group>"; };
+		C1C29A892E0CAA2A00FF7C0B /* DebugView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -231,6 +236,7 @@
 		C13B940F2DFC614E007BC349 /* firstAdStepsEmp2 */ = {
 			isa = PBXGroup;
 			children = (
+				C1A229332E0D6602001B7894 /* Info.plist */,
 				C13B94612DFC6466007BC349 /* Components */,
 				C13B94552DFC6300007BC349 /* Views */,
 				C13B94522DFC62DE007BC349 /* ViewModels */,
@@ -340,6 +346,7 @@
 				C13B94772DFC83A8007BC349 /* Home */,
 				C11B49CB2E094DEE004A3BFC /* Route */,
 				C100045D2DFE428D003D5C86 /* Profile */,
+				C1C29A892E0CAA2A00FF7C0B /* DebugView.swift */,
 				C13B94742DFC8267007BC349 /* RootView.swift */,
 				C13B94702DFC7080007BC349 /* SplashView.swift */,
 			);
@@ -375,6 +382,7 @@
 				C10004612DFE438D003D5C86 /* MainView.swift */,
 				C13B94762DFC83A8007BC349 /* HomeView.swift */,
 				C10004652DFE4E00003D5C86 /* NotificationsView.swift */,
+				C1A229342E0D66C9001B7894 /* NotificationListView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -559,6 +567,7 @@
 				C100046A2DFE59C0003D5C86 /* RouteViewModel.swift in Sources */,
 				C10004642DFE4C92003D5C86 /* RoutesView.swift in Sources */,
 				C13B94112DFC614E007BC349 /* firstAdStepsEmp2App.swift in Sources */,
+				C1A229352E0D66C9001B7894 /* NotificationListView.swift in Sources */,
 				C100045E2DFE428D003D5C86 /* ProfileView.swift in Sources */,
 				C13B94642DFC6471007BC349 /* Helpers.swift in Sources */,
 				C13B947E2DFC865A007BC349 /* ServiceError.swift in Sources */,
@@ -570,6 +579,7 @@
 				C11B49E72E0AE728004A3BFC /* WorkPlanDetailView.swift in Sources */,
 				C13B947A2DFC85D4007BC349 /* AppStateManager.swift in Sources */,
 				C10004732E001EBB003D5C86 /* RouteDetailView.swift in Sources */,
+				C1C29A8A2E0CAA2A00FF7C0B /* DebugView.swift in Sources */,
 				C11B49C62E08A470004A3BFC /* UserService.swift in Sources */,
 				C13B94852DFCC58A007BC349 /* APIResponse.swift in Sources */,
 				C11B49D52E09C4C0004A3BFC /* RouteRowView.swift in Sources */,
@@ -732,10 +742,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"firstAdStepsEmp2/Preview Content\"";
-				DEVELOPMENT_TEAM = P647F88NKK;
+				DEVELOPMENT_TEAM = PU8U93ML7K;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = firstAdStepsEmp2/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -751,7 +762,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = StayDev.firstAdStepsEmp2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adSteps;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -771,10 +782,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"firstAdStepsEmp2/Preview Content\"";
-				DEVELOPMENT_TEAM = P647F88NKK;
+				DEVELOPMENT_TEAM = PU8U93ML7K;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = firstAdStepsEmp2/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -790,7 +802,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = StayDev.firstAdStepsEmp2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adSteps;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

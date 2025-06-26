@@ -32,6 +32,7 @@ enum AppConfig {
         static let uploadCheckpointPhoto = "/uploadCheckpointPhoto"
         static let getCheckpointPhotos = "/getCheckpointPhotos"
         static let logEvent = "/logevent"
+        static let updateDeviceToken = "/updatedevicetoken"
     }
     
     // Headers
@@ -55,13 +56,22 @@ enum AppConfig {
         static let sessionToken = "sessionToken"
         static let userData = "userData"
         static let lastLoginDate = "lastLoginDate"
+        static let deviceToken = "deviceToken"
     }
     
     // Validation
     enum Validation {
-        static let minPhoneLength = 10
-        static let maxPhoneLength = 15
-        static let otpLength = 4
+        static let phoneNumberMinLength = 10
+        static let phoneNumberMaxLength = 15
+        static let otpLength = 6
+        static let passwordMinLength = 6
+        static let passwordMaxLength = 50
+    }
+    
+    // Notification
+    enum Notification {
+        static let defaultSound = "default"
+        static let defaultBadge = 1
     }
     
     // UI Constants

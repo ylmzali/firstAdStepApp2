@@ -7,6 +7,7 @@ enum RouteStatus: String, Codable {
     case payment_pending = "payment_pending"             // 3.1. Plan onaylandı, ödeme bekleniyor
     case plan_rejected = "plan_rejected"                 // 3.2. Plan reddedildi
     case payment_completed = "payment_completed"         // 4. Ödeme alındı, yayın planına alındı
+    case ready_to_start = "ready_to_start"               // 5. Yayına hazır, yayın tarihinde aktif olacak
     case active = "active"                               // Aktif yayın
     case completed = "completed"                         // Tamamlandı
     case cancelled = "cancelled"                         // İptal edildi
@@ -32,6 +33,7 @@ enum RouteStatus: String, Codable {
         case .payment_pending: return .orange
         case .plan_rejected: return .red
         case .payment_completed: return .green
+        case .ready_to_start: return .green
         case .active: return .green
         case .completed: return .blue
         case .cancelled: return .red
@@ -50,6 +52,8 @@ enum RouteStatus: String, Codable {
             return "Plan reddedildi"
         case .payment_completed:
             return "Ödeme alındı, yayın planına alındı"
+        case .ready_to_start:
+            return "Yayına hazır, yayın tarihinde aktif olacak"
         case .active:
             return "Aktif yayın"
         case .completed:
@@ -96,6 +100,7 @@ enum RouteStatus: String, Codable {
         case .plan_ready: return 2
         case .payment_pending: return 3
         case .payment_completed: return 4
+        case .ready_to_start: return 4
         case .active: return 5
         case .completed: return 6
         case .plan_rejected: return 1 // Plan reddedildiğinde yeniden baştan başlar

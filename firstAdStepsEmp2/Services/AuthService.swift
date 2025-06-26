@@ -54,6 +54,31 @@ class AuthService {
         )
     }
     
+    // MARK: - Device Token Update
+    func updateDeviceToken(
+        userId: String,
+        deviceToken: String,
+        platform: String = "ios",
+        appVersion: String? = nil,
+        completion: @escaping (Result<DeviceTokenResponse, ServiceError>) -> Void
+    ) {
+        let appVersion = appVersion ?? Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        
+        let parameters = [
+            "user_id": userId,
+            "device_token": deviceToken,
+            "platform": platform,
+            "app_version": appVersion
+        ]
+        
+        makeRequest(
+            endpoint: "updatedevicetoken",
+            method: .post,
+            parameters: parameters,
+            completion: completion
+        )
+    }
+    
     // MARK: - Helper Methods
     private func makeRequest<T: Decodable>(
         endpoint: String,
@@ -69,6 +94,7 @@ class AuthService {
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(appToken, forHTTPHeaderField: "app_token")
         
         if let parameters = parameters {
@@ -134,6 +160,24 @@ class AuthService {
             }
         }.resume()
     }
+}
+
+// MARK: - Device Token Response Model
+
+struct DeviceTokenResponse: Codable {
+    let status: String
+    let message: String?
+    let data: DeviceTokenData?
+    let error: ErrorResponse?
+}
+
+struct DeviceTokenData: Codable {
+    let isDeviceTokenUpdated: Bool?
+    let userId: String?
+    let deviceToken: String?
+    let platform: String?
+    let appVersion: String?
+    let updatedAt: String?
 }
 
 

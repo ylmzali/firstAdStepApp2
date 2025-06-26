@@ -20,6 +20,91 @@ struct HomeView: View {
             }
         }
         .navigationBarHidden(true)
+        // Backend'den gelen bildirimleri dinle
+        .onReceive(NotificationCenter.default.publisher(for: .adRequestPlanReadyTapped)) { notification in
+            handleNotificationTap(notification: notification, tab: 1, type: "Reklam Planı")
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .routeStartedTapped)) { notification in
+            handleNotificationTap(notification: notification, tab: 1, type: "Rota Başladı")
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .routeCompletedTapped)) { notification in
+            handleNotificationTap(notification: notification, tab: 1, type: "Rota Tamamlandı")
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .reportReadyTapped)) { notification in
+            handleNotificationTap(notification: notification, tab: 1, type: "Rapor Hazır")
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .paymentPendingTapped)) { notification in
+            handleNotificationTap(notification: notification, tab: 1, type: "Ödeme Bekliyor")
+        }
+        // Push notification'ları dinle
+        .onReceive(NotificationCenter.default.publisher(for: .adRequestPlanReadyReceived)) { notification in
+            handlePushNotification(notification: notification, type: "Reklam Planı")
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .routeStartedReceived)) { notification in
+            handlePushNotification(notification: notification, type: "Rota Başladı")
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .routeCompletedReceived)) { notification in
+            handlePushNotification(notification: notification, type: "Rota Tamamlandı")
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .reportReadyReceived)) { notification in
+            handlePushNotification(notification: notification, type: "Rapor Hazır")
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .paymentPendingReceived)) { notification in
+            handlePushNotification(notification: notification, type: "Ödeme Bekliyor")
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .readyToStartReceived)) { notification in
+            handlePushNotification(notification: notification, type: "Başlamaya Hazır")
+        }
+        // Geriye uyumluluk için eski bildirimler
+        .onReceive(NotificationCenter.default.publisher(for: .routeNotificationTapped)) { notification in
+            handleNotificationTap(notification: notification, tab: 1, type: "Genel Rota")
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .routeNotificationReceived)) { notification in
+            handlePushNotification(notification: notification, type: "Rota Güncellendi")
+        }
+        // Deep link handling
+        .onReceive(NotificationCenter.default.publisher(for: .deepLinkToRoute)) { notification in
+            handleDeepLink(notification: notification)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .navigateToRoute)) { notification in
+            handleNavigateToRoute(notification: notification)
+        }
+    }
+    
+    // MARK: - Notification Handlers
+    
+    private func handleNotificationTap(notification: Notification, tab: Int, type: String) {
+        if let routeId = notification.userInfo?["routeId"] as? String {
+            print("\(type) bildirimi tıklandı, routeId: \(routeId)")
+            selectedTab = tab // Reklamlar tab'ına git
+            // TODO: Belirli rotayı açmak için ek işlemler yapılabilir
+        }
+    }
+    
+    private func handlePushNotification(notification: Notification, type: String) {
+        if let routeId = notification.userInfo?["routeId"] as? String {
+            print("Push notification: \(type), routeId: \(routeId)")
+            // Bildirimler tab'ına git ve kullanıcıya göster
+            selectedTab = 2 // Bildirimler tab'ı
+        }
+    }
+    
+    private func handleDeepLink(notification: Notification) {
+        if let routeId = notification.userInfo?["routeId"] as? String {
+            print("🔗 HomeView: Deep link işleniyor - Route ID: \(routeId)")
+            // Reklamlar tab'ına git ve route'u göster
+            selectedTab = 1
+            // TODO: Belirli route'u açmak için ek işlemler
+        }
+    }
+    
+    private func handleNavigateToRoute(notification: Notification) {
+        if let routeId = notification.userInfo?["routeId"] as? String {
+            print("🔗 HomeView: Route'a yönlendiriliyor - Route ID: \(routeId)")
+            // Reklamlar tab'ına git ve route'u göster
+            selectedTab = 1
+            // TODO: Belirli route'u açmak için ek işlemler
+        }
     }
 }
 
@@ -35,7 +120,7 @@ struct TabContentView: View {
             case 1:
                 RoutesView()
             case 2:
-                NotificationsView()
+                NotificationListView()
             case 3:
                 ProfileView()
             default:
