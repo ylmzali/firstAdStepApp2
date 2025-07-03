@@ -79,49 +79,77 @@ struct MapWithPolylines: UIViewRepresentable {
             
             // İkon boyutunu belirle
             let size: CGFloat = customAnnotation.isLarge ? 40 : 20
-            
-            // İkon rengini belirle
-            let uiColor = UIColor(customAnnotation.color)
-            
-            // İkon tipini belirle
-            let imageName: String
-            switch customAnnotation.annotationType {
-            case .start:
-                imageName = "mappin.circle.fill" // Başlangıç için mappin.circle.fill
-            case .end:
-                imageName = "flag.circle.fill" // Bitiş için flag.circle.fill
-            case .waypoint:
-                imageName = "circle.fill"
-            }
-            
-            // SF Symbol kullanarak ikon oluştur
-            let config = UIImage.SymbolConfiguration(pointSize: size, weight: .medium)
-            let image = UIImage(systemName: imageName, withConfiguration: config)?.withTintColor(uiColor, renderingMode: .alwaysOriginal)
-            
+            // Renkler
+            let mainColor = UIColor(customAnnotation.color)
+            let lightColor = mainColor.withAlphaComponent(0.5)
+            let veryLightColor = mainColor.withAlphaComponent(0.25)
+            // Özel pin image'ı oluştur
+            let image = createLayeredCircleImage(size: size, mainColor: mainColor, lightColor: lightColor, veryLightColor: veryLightColor)
             annotationView?.image = image
             annotationView?.annotation = annotation
-            
             return annotationView
+        }
+        
+        // MARK: - Custom Map Pin Image
+        private func createLayeredCircleImage(size: CGFloat, mainColor: UIColor, lightColor: UIColor, veryLightColor: UIColor) -> UIImage {
+            let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
+            return renderer.image { context in
+                let rect = CGRect(x: 0, y: 0, width: size, height: size)
+                let center = CGPoint(x: size/2, y: size/2)
+                // En büyük daire (en altta) - opacity 25%
+                let largestRadius = size * 0.5
+                let largestRect = CGRect(
+                    x: center.x - largestRadius,
+                    y: center.y - largestRadius,
+                    width: largestRadius * 2,
+                    height: largestRadius * 2
+                )
+                veryLightColor.setFill()
+                context.cgContext.fillEllipse(in: largestRect)
+                // Orta daire - opacity 50%
+                let mediumRadius = size * 0.35
+                let mediumRect = CGRect(
+                    x: center.x - mediumRadius,
+                    y: center.y - mediumRadius,
+                    width: mediumRadius * 2,
+                    height: mediumRadius * 2
+                )
+                lightColor.setFill()
+                context.cgContext.fillEllipse(in: mediumRect)
+                // En küçük daire (en üstte) - normal opacity
+                let smallestRadius = size * 0.2
+                let smallestRect = CGRect(
+                    x: center.x - smallestRadius,
+                    y: center.y - smallestRadius,
+                    width: smallestRadius * 2,
+                    height: smallestRadius * 2
+                )
+                mainColor.setFill()
+                context.cgContext.fillEllipse(in: smallestRect)
+            }
         }
         
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
             if let polyline = overlay as? MKPolyline {
                 let renderer = MKPolylineRenderer(polyline: polyline)
-                // Directions API'den gelen polyline'lar
+                // Directions API'den gelen polyline'lar - YEŞİL
                 if parent.directionPolylines.contains(where: { $0 === polyline }) {
-                    renderer.strokeColor = UIColor.systemBlue.withAlphaComponent(0.8) // Daha görünür
-                    renderer.lineWidth = 6.0 // Biraz daha ince ama görünür
+                    renderer.strokeColor = UIColor.systemGreen.withAlphaComponent(0.8) // Yeşil renk
+                    renderer.lineWidth = 13.0 // Kalın çizgi
+                    renderer.alpha = 1.0
                 } else {
-                    // ScreenSession polyline'ları
-                    renderer.strokeColor = UIColor.systemGreen.withAlphaComponent(0.7) // Yeşil renk
-                    renderer.lineWidth = 3.0 // Daha kalın
+                    // ScreenSession polyline'ları - MAVİ
+                    renderer.strokeColor = UIColor.systemBlue.withAlphaComponent(0.7) // Mavi renk
+                    renderer.lineWidth = 3.0 // İnce çizgi
+                    renderer.alpha = 1.0
                 }
                 return renderer
             } else if let circle = overlay as? MKCircle {
                 let renderer = MKCircleRenderer(circle: circle)
                 renderer.fillColor = UIColor.systemBlue.withAlphaComponent(0.25) // Mavi, yarı saydam fill
                 renderer.strokeColor = UIColor.systemBlue.withAlphaComponent(0.8) // Mavi, opak stroke
-                renderer.lineWidth = 6.0 // Kalın çizgi
+                renderer.lineWidth = 1.0 // Kalın çizgi
+                renderer.alpha = 1.0
                 return renderer
             } else {
                 return MKOverlayRenderer(overlay: overlay)

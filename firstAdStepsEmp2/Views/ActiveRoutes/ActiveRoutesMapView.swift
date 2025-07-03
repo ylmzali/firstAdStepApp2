@@ -13,10 +13,8 @@ struct ActiveRoutesMapView: View {
     }
     
     var body: some View {
-        let coordinateCount = viewModel.schedules.reduce(0) { total, schedule in
-            total + (schedule.screenSessions?.filter { $0.currentLat != nil && $0.currentLng != nil }.count ?? 0)
-        }
         ZStack {
+            // MapWithPolylines kullanarak rota çizgilerini geri getiriyorum
             MapWithPolylines(
                 region: viewModel.region,
                 annotations: viewModel.mapAnnotations,
@@ -25,118 +23,69 @@ struct ActiveRoutesMapView: View {
                 areaCircles: viewModel.areaCircles
             )
             .ignoresSafeArea()
-                
-                // Top Controls
-                VStack {
-                    HStack {
-                        Spacer()
-                        
-                        // Filters Button
-                        Button(action: {
-                            showingFilters = true
-                        }) {
+
+            VStack {
+                HStack {
+                    
+                    // Filters Button
+                    Button(action: {
+                        showingFilters = true
+                    }) {
+                        HStack {
                             Image(systemName: "line.3.horizontal.decrease.circle.fill")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                                .background(Color.black.opacity(0.6))
-                                .clipShape(Circle())
-                                .padding(8)
+                            Text("Filtreler")
                         }
-                        
-                        // Close Button
-                        Button(action: {
-                            navigationManager.goToHome()
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                                .background(Color.black.opacity(0.6))
-                                .clipShape(Circle())
-                                .padding(8)
-                        }
+                        .padding(8)
+                        .foregroundColor(.white)
+                        .background(Color.black.opacity(0.6))
+                        .cornerRadius(24)
                     }
-                    .padding(.horizontal)
-                    .padding(.top, 50)
-                    
+
                     Spacer()
-                    
-                    // Test Statistics Cards - Sadece Schedules ve ScreenSessions
-                    VStack(spacing: 12) {
-                        HStack(spacing: 12) {
-                            MapStatCard(
-                                icon: "calendar",
-                                title: "Schedules",
-                                value: "\(viewModel.schedules.count)",
-                                color: .blue
-                            )
-                            
-                            MapStatCard(
-                                icon: "play.circle",
-                                title: "ScreenSessions",
-                                value: "\(viewModel.schedules.reduce(0) { $0 + ($1.screenSessions?.count ?? 0) })",
-                                color: .green
-                            )
-                            
-                            MapStatCard(
-                                icon: "checkmark.circle",
-                                title: "Annotations",
-                                value: "\(viewModel.mapAnnotations.count)",
-                                color: .orange
-                            )
-                        }
-                        
-                        HStack(spacing: 12) {
-                            MapStatCard(
-                                icon: "map",
-                                title: "Polylines",
-                                value: "\(viewModel.directionPolylines.count + viewModel.sessionPolylines.count)",
-                                color: .purple
-                            )
-                            
-                            MapStatCard(
-                                icon: "location",
-                                title: "Coordinates",
-                                value: "\(coordinateCount)",
-                                color: .red
-                            )
-                        }
+
+                    // Close Button
+                    Button(action: {
+                        navigationManager.goToHome()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title)
+                            .foregroundColor(.black.opacity(0.6))
+                            .background(Color.white.opacity(0.6))
+                            .clipShape(Circle())
                     }
-                    .padding(.horizontal)
-                    .padding(.bottom, 100) // TabBar için extra padding
                 }
+                .padding(.horizontal)
+                .padding(.top, 80)
                 
-                // Loading Overlay
-                if SessionManager.shared.isLoading {
-                    Color.black.opacity(0.3)
-                        .ignoresSafeArea()
-                    
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .scaleEffect(1.5)
-                }
+                Spacer()
+            }
+            .ignoresSafeArea()
+            
+            // Loading Overlay
+            if SessionManager.shared.isLoading {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
                 
-                // Error Overlay
-                if let error = viewModel.error {
-                    ErrorView(message: error.userMessage) {
-                        viewModel.loadActiveSchedules()
-                    }
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.5)
+            }
+            
+            // Error Overlay
+            if let error = viewModel.error {
+                ErrorView(message: error.userMessage) {
+                    viewModel.loadActiveSchedules()
                 }
             }
-            .navigationBarHidden(true)
+        }
+        .navigationBarHidden(true)
         .sheet(isPresented: $showingDetailSheet) {
             if let annotation = selectedAnnotation {
                 ScheduleDetailSheet(schedule: annotation.schedule)
             }
         }
         .sheet(isPresented: $showingFilters) {
-            FilterSheet(
-                selectedDate: $viewModel.selectedDate,
-                selectedStatus: $viewModel.selectedStatus,
-                selectedEmployeeId: $viewModel.selectedEmployeeId,
-                onApply: {
-                    viewModel.loadActiveSchedules()
-                }
-            )
+            FilterSheet(viewModel: viewModel)
         }
         .onAppear {
             print("🗺️ ActiveRoutesMapView appeared")
@@ -154,39 +103,21 @@ struct ActiveRoutesMapView: View {
                 print("   \(index + 1). \(annotation.type) at \(annotation.coordinate.latitude), \(annotation.coordinate.longitude)")
             }
         }
-    }
-    
-    // MARK: - Helper Functions
-    private func annotationIcon(for type: RouteMapAnnotation.AnnotationType) -> String {
-        switch type {
-        case .start:
-            return "play.circle.fill"
-        case .end:
-            return "stop.circle.fill"
-        case .waypoint:
-            return "circle.fill"
+        .onReceive(viewModel.$region) { newRegion in
+            print("🗺️ Region updated: \(newRegion.center.latitude), \(newRegion.center.longitude)")
+            print("🗺️ Region span: \(newRegion.span.latitudeDelta), \(newRegion.span.longitudeDelta)")
         }
     }
 }
 
-// MARK: - Annotation View
-struct AnnotationView: View {
+// MARK: - Custom Annotation View
+struct CustomAnnotationView: View {
     let annotation: RouteMapAnnotation
-    let onTap: () -> Void
-    
-    private func annotationIcon(for type: RouteMapAnnotation.AnnotationType) -> String {
-        switch type {
-        case .start:
-            return "play.circle.fill"
-        case .end:
-            return "stop.circle.fill"
-        case .waypoint:
-            return "circle.fill"
-        }
-    }
     
     var body: some View {
-        Button(action: onTap) {
+        Button(action: {
+            // Handle annotation tap
+        }) {
             VStack(spacing: 2) {
                 Image(systemName: annotationIcon(for: annotation.type))
                     .font(.system(size: 20, weight: .bold))
@@ -200,6 +131,17 @@ struct AnnotationView: View {
                     )
                     .shadow(radius: 3)
             }
+        }
+    }
+    
+    private func annotationIcon(for type: RouteMapAnnotation.AnnotationType) -> String {
+        switch type {
+        case .start:
+            return "play.circle.fill"
+        case .end:
+            return "stop.circle.fill"
+        case .waypoint:
+            return "circle.fill"
         }
     }
 }
@@ -317,34 +259,81 @@ struct MapInfoRow: View {
     }
 }
 
+// MARK: - Custom Checkbox View
+struct CheckboxView: View {
+    let isChecked: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                Circle()
+                    .stroke(Color.blue, lineWidth: 2)
+                    .frame(width: 24, height: 24)
+                
+                if isChecked {
+                    Circle()
+                        .fill(Color.blue)
+                        .frame(width: 16, height: 16)
+                }
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
 // MARK: - Filter Sheet
 struct FilterSheet: View {
-    @Binding var selectedDate: Date
-    @Binding var selectedStatus: String?
-    @Binding var selectedEmployeeId: Int?
-    let onApply: () -> Void
+    @ObservedObject var viewModel: ActiveRoutesViewModel
     @Environment(\.dismiss) private var dismiss
-    
-    private let statusOptions = ["Tümü", "Aktif", "Tamamlanan", "Beklemede"]
     
     var body: some View {
         NavigationView {
             Form {
-                Section("Tarih") {
-                    DatePicker("Tarih Seçin", selection: $selectedDate, displayedComponents: .date)
-                }
-                
-                Section("Durum") {
-                    Picker("Durum", selection: $selectedStatus) {
-                        Text("Tümü").tag(nil as String?)
-                        ForEach(statusOptions.dropFirst(), id: \.self) { status in
-                            Text(status).tag(status as String?)
+                Section("Aktif Rotalar") {
+                    if viewModel.schedules.isEmpty {
+                        Text("Henüz rota bulunmuyor")
+                            .foregroundColor(.secondary)
+                    } else {
+                        ForEach(viewModel.schedules, id: \.id) { schedule in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(schedule.title ?? "Schedule \(schedule.id)")
+                                        .font(.headline)
+                                    Text(schedule.routeType == "fixed_route" ? "Sabit Rota" : "Alan Rota")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
+                                
+                                Button(action: {
+                                    if viewModel.selectedScheduleIds.contains(schedule.id) {
+                                        viewModel.selectedScheduleIds.removeAll { $0 == schedule.id }
+                                    } else {
+                                        viewModel.selectedScheduleIds.append(schedule.id)
+                                    }
+                                }) {
+                                    Image(systemName: viewModel.selectedScheduleIds.contains(schedule.id) ? "checkmark.circle.fill" : "circle")
+                                        .foregroundColor(viewModel.selectedScheduleIds.contains(schedule.id) ? .blue : .gray)
+                                        .font(.system(size: 32))
+                                }
+                            }
+                            
+                        }
+                        
+                        HStack {
+                            Spacer()
+                            Button("Tümünü Seç") {
+                                viewModel.selectedScheduleIds = viewModel.schedules.map { $0.id }
+                            }
+                            .foregroundColor(.blue)
                         }
                     }
-                    .pickerStyle(SegmentedPickerStyle())
                 }
             }
             .navigationTitle("Filtreler")
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -355,7 +344,7 @@ struct FilterSheet: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Uygula") {
-                        onApply()
+                        viewModel.prepareMapData()
                         dismiss()
                     }
                 }
@@ -365,5 +354,6 @@ struct FilterSheet: View {
 }
 
 #Preview {
+    // FilterSheet(viewModel: ActiveRoutesViewModel())
     ActiveRoutesMapView(viewModel: ActiveRoutesViewModel())
 }

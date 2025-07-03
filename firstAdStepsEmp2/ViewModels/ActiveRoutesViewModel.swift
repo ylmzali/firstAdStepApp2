@@ -7,8 +7,7 @@ class ActiveRoutesViewModel: ObservableObject {
     @Published var schedules: [ActiveSchedule] = []
     @Published var error: ServiceError?
     @Published var selectedDate = Date()
-    @Published var selectedStatus: String?
-    @Published var selectedEmployeeId: Int?
+    @Published var selectedScheduleIds: [Int] = []
     
     // Map properties
     @Published var region = MKCoordinateRegion(
@@ -31,7 +30,7 @@ class ActiveRoutesViewModel: ObservableObject {
         print("🔵 ===== LOAD ACTIVE SCHEDULES ÇAĞRILDI =====")
         let userId = SessionManager.shared.currentUser?.id ?? "1"
         print("🔵 User ID: \(userId)")
-        service.getActiveRoutes(date: selectedDate, userId: userId, status: selectedStatus, employeeId: selectedEmployeeId) { [weak self] result in
+        service.getActiveRoutes(date: selectedDate, userId: userId, status: nil, employeeId: nil) { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let response):
@@ -259,12 +258,21 @@ class ActiveRoutesViewModel: ObservableObject {
         self.prepareMapData()
     }
     
-    private func prepareMapData() {
+    func prepareMapData() {
         print("🔵 prepareMapData başladı - \(schedules.count) schedule")
+        
+        // Filtrelenmiş schedule'ları al
+        let filteredSchedules: [ActiveSchedule]
+        if !selectedScheduleIds.isEmpty {
+            filteredSchedules = schedules.filter { selectedScheduleIds.contains($0.id) }
+            print("🔵 Seçili schedule ID'ler: \(selectedScheduleIds), filtrelenmiş: \(filteredSchedules.count) schedule")
+        } else {
+            filteredSchedules = schedules
+        }
         
         // Debug: API'den gelen data'nın routeType değerlerini kontrol et
         print("🔵 ===== API'DEN GELEN DATA DEBUG =====")
-        for (index, schedule) in schedules.enumerated() {
+        for (index, schedule) in filteredSchedules.enumerated() {
             print("🔵 API Schedule \(index + 1): ID=\(schedule.id), routeType='\(schedule.routeType ?? "nil")'")
             print("🔵   - startLat: \(schedule.startLat ?? 0), startLng: \(schedule.startLng ?? 0)")
             print("🔵   - endLat: \(schedule.endLat ?? 0), endLng: \(schedule.endLng ?? 0)")
@@ -283,7 +291,7 @@ class ActiveRoutesViewModel: ObservableObject {
         var directionPolylines: [MKPolyline] = []
         var areaCircles: [MKCircle] = []
         
-        for schedule in schedules {
+        for schedule in filteredSchedules {
             print("🔵 Schedule işleniyor: ID=\(schedule.id), Type=\(schedule.routeType ?? "nil")")
             // Route type'a göre farklı gösterim
             if let routeType = schedule.routeType, routeType == "fixed_route" {
@@ -307,7 +315,7 @@ class ActiveRoutesViewModel: ObservableObject {
                     let endAnnotation = RouteMapAnnotation(
                         coordinate: CLLocationCoordinate2D(latitude: endLat, longitude: endLng),
                         type: .end,
-                        color: .red,
+                        color: .blue, // Kırmızı yerine mavi
                         schedule: schedule,
                         isLarge: true
                     )
@@ -373,14 +381,26 @@ class ActiveRoutesViewModel: ObservableObject {
             self?.areaCircles = areaCircles
             print("🔵 Map data güncellendi: \(annotations.count) annotation, \(sessionPolylines.count) session polyline, \(areaCircles.count) area circle")
             
-            // Area route varsa, harita bölgesini ona göre ayarla
-            if let areaSchedule = self?.schedules.first(where: { $0.routeType == "area_route" }),
-               let centerLat = areaSchedule.centerLat, let centerLng = areaSchedule.centerLng, let radius = areaSchedule.radiusMeters {
-                let center = CLLocationCoordinate2D(latitude: centerLat, longitude: centerLng)
-                // Radius'u kapsayacak şekilde span hesapla (1 derece ~ 111km)
-                let latDelta = Double(radius) / 111_000.0 * 2.2 // 2.2 ile biraz daha genişlet
-                let lngDelta = Double(radius) / (111_000.0 * cos(centerLat * .pi / 180)) * 2.2
-                self?.region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: lngDelta))
+            // Seçilen schedule'lara focus yap, yoksa tüm rotaları göster
+            if let selectedIds = self?.selectedScheduleIds, !selectedIds.isEmpty {
+                // Seçilen schedule'ları al
+                let selectedSchedules = filteredSchedules.filter { schedule in
+                    selectedIds.contains(schedule.id)
+                }
+                
+                if selectedSchedules.count == 1 {
+                    // Tek rota seçilmişse ona focus yap
+                    self?.focusOnSchedule(selectedSchedules[0])
+                } else if selectedSchedules.count > 1 {
+                    // Birden fazla rota seçilmişse hepsini kapsayacak şekilde focus yap
+                    self?.focusOnSelectedSchedules(selectedSchedules)
+                } else {
+                    // Hiç rota seçilmemişse tüm rotaları göster
+                    self?.showAllRoutes(filteredSchedules)
+                }
+            } else {
+                // Hiç rota seçilmemişse tüm rotaları göster
+                self?.showAllRoutes(filteredSchedules)
             }
         }
     }
@@ -400,32 +420,214 @@ class ActiveRoutesViewModel: ObservableObject {
         }
     }
     
-    // Filter Methods
-    func filterByStatus(_ status: String?) {
-        selectedStatus = status
-        loadActiveSchedules()
-    }
-    
-    func filterByEmployee(_ employeeId: Int?) {
-        selectedEmployeeId = employeeId
-        loadActiveSchedules()
-    }
-    
-    func filterByDate(_ date: Date) {
-        selectedDate = date
-        loadActiveSchedules()
-    }
-    
-    func clearFilters() {
-        selectedStatus = nil
-        selectedEmployeeId = nil
-        selectedDate = Date()
-        loadActiveSchedules()
-    }
-    
     private func colorForSchedule(_ id: Int) -> Color {
         let colors: [Color] = [.blue, .green, .orange, .purple, .red, .pink, .yellow, .teal, .indigo, .mint]
         return colors[id % colors.count]
+    }
+    
+    // MARK: - Map Focus Functions
+    private func focusOnSchedule(_ schedule: ActiveSchedule) {
+        print("🔵 Schedule'a focus yapılıyor: ID=\(schedule.id)")
+        
+        if let routeType = schedule.routeType, routeType == "fixed_route" {
+            // Fixed route için başlangıç ve bitiş noktaları arasına zoom
+            if let startLat = schedule.startLat, let startLng = schedule.startLng,
+               let endLat = schedule.endLat, let endLng = schedule.endLng {
+                
+                let startCoord = CLLocationCoordinate2D(latitude: startLat, longitude: startLng)
+                let endCoord = CLLocationCoordinate2D(latitude: endLat, longitude: endLng)
+                
+                // İki nokta arasındaki merkezi hesapla
+                let centerLat = (startLat + endLat) / 2
+                let centerLng = (startLng + endLng) / 2
+                let center = CLLocationCoordinate2D(latitude: centerLat, longitude: centerLng)
+                
+                // İki nokta arasındaki mesafeyi hesapla ve span ayarla
+                let latDelta = abs(endLat - startLat) * 1.5 // 1.5 ile biraz daha genişlet
+                let lngDelta = abs(endLng - startLng) * 1.5
+                
+                // Minimum span değerleri
+                let minSpan = 0.01
+                let finalLatDelta = max(latDelta, minSpan)
+                let finalLngDelta = max(lngDelta, minSpan)
+                
+                self.region = MKCoordinateRegion(
+                    center: center,
+                    span: MKCoordinateSpan(latitudeDelta: finalLatDelta, longitudeDelta: finalLngDelta)
+                )
+                print("🔵 Fixed route focus: Merkez(\(centerLat), \(centerLng)), Span(\(finalLatDelta), \(finalLngDelta))")
+            }
+        } else if let routeType = schedule.routeType, routeType == "area_route" {
+            // Area route için merkez nokta etrafına zoom
+            if let centerLat = schedule.centerLat, let centerLng = schedule.centerLng, let radius = schedule.radiusMeters {
+                let center = CLLocationCoordinate2D(latitude: centerLat, longitude: centerLng)
+                // Radius'u kapsayacak şekilde span hesapla (1 derece ~ 111km)
+                let latDelta = Double(radius) / 111_000.0 * 2.2 // 2.2 ile biraz daha genişlet
+                let lngDelta = Double(radius) / (111_000.0 * cos(centerLat * .pi / 180)) * 2.2
+                
+                self.region = MKCoordinateRegion(
+                    center: center,
+                    span: MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: lngDelta)
+                )
+                print("🔵 Area route focus: Merkez(\(centerLat), \(centerLng)), Radius=\(radius)m, Span(\(latDelta), \(lngDelta))")
+            }
+        }
+    }
+    
+    private func focusOnSelectedSchedules(_ schedules: [ActiveSchedule]) {
+        print("🔵 Seçilen schedule'lara focus yapılıyor: \(schedules.count) schedule")
+        
+        if schedules.isEmpty {
+            // Hiç schedule yoksa varsayılan bölge
+            self.region = MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: 41.0251, longitude: 28.9934), // İstanbul merkez
+                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+            )
+            return
+        }
+        
+        // Seçilen schedule'ların koordinatlarını topla
+        var allCoordinates: [CLLocationCoordinate2D] = []
+        
+        for schedule in schedules {
+            // Fixed route koordinatları
+            if let startLat = schedule.startLat, let startLng = schedule.startLng {
+                allCoordinates.append(CLLocationCoordinate2D(latitude: startLat, longitude: startLng))
+            }
+            if let endLat = schedule.endLat, let endLng = schedule.endLng {
+                allCoordinates.append(CLLocationCoordinate2D(latitude: endLat, longitude: endLng))
+            }
+            
+            // Area route merkez koordinatları
+            if let centerLat = schedule.centerLat, let centerLng = schedule.centerLng {
+                allCoordinates.append(CLLocationCoordinate2D(latitude: centerLat, longitude: centerLng))
+            }
+            
+            // Screen session koordinatları
+            if let screenSessions = schedule.screenSessions {
+                for session in screenSessions {
+                    if let lat = session.currentLat, let lng = session.currentLng {
+                        allCoordinates.append(CLLocationCoordinate2D(latitude: lat, longitude: lng))
+                    }
+                }
+            }
+        }
+        
+        if allCoordinates.isEmpty {
+            // Hiç koordinat yoksa varsayılan bölge
+            self.region = MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: 41.0251, longitude: 28.9934),
+                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+            )
+            return
+        }
+        
+        // Seçilen koordinatları kapsayacak bölgeyi hesapla
+        let lats = allCoordinates.map { $0.latitude }
+        let lngs = allCoordinates.map { $0.longitude }
+        
+        let minLat = lats.min() ?? 41.0
+        let maxLat = lats.max() ?? 41.1
+        let minLng = lngs.min() ?? 28.9
+        let maxLng = lngs.max() ?? 29.1
+        
+        let centerLat = (minLat + maxLat) / 2
+        let centerLng = (minLng + maxLng) / 2
+        let center = CLLocationCoordinate2D(latitude: centerLat, longitude: centerLng)
+        
+        let latDelta = (maxLat - minLat) * 1.3 // 1.3 ile biraz daha genişlet
+        let lngDelta = (maxLng - minLng) * 1.3
+        
+        // Minimum span değerleri
+        let minSpan = 0.015
+        let finalLatDelta = max(latDelta, minSpan)
+        let finalLngDelta = max(lngDelta, minSpan)
+        
+        self.region = MKCoordinateRegion(
+            center: center,
+            span: MKCoordinateSpan(latitudeDelta: finalLatDelta, longitudeDelta: finalLngDelta)
+        )
+        
+        print("🔵 Seçilen rotalar focus: Merkez(\(centerLat), \(centerLng)), Span(\(finalLatDelta), \(finalLngDelta))")
+        print("🔵 Seçilen koordinat aralığı: Lat(\(minLat)-\(maxLat)), Lng(\(minLng)-\(maxLng))")
+    }
+    
+    private func showAllRoutes(_ schedules: [ActiveSchedule]) {
+        print("🔵 Tüm rotalar gösteriliyor: \(schedules.count) schedule")
+        
+        if schedules.isEmpty {
+            // Hiç schedule yoksa varsayılan bölge
+            self.region = MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: 41.0251, longitude: 28.9934), // İstanbul merkez
+                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+            )
+            return
+        }
+        
+        // Tüm schedule'ların koordinatlarını topla
+        var allCoordinates: [CLLocationCoordinate2D] = []
+        
+        for schedule in schedules {
+            // Fixed route koordinatları
+            if let startLat = schedule.startLat, let startLng = schedule.startLng {
+                allCoordinates.append(CLLocationCoordinate2D(latitude: startLat, longitude: startLng))
+            }
+            if let endLat = schedule.endLat, let endLng = schedule.endLng {
+                allCoordinates.append(CLLocationCoordinate2D(latitude: endLat, longitude: endLng))
+            }
+            
+            // Area route merkez koordinatları
+            if let centerLat = schedule.centerLat, let centerLng = schedule.centerLng {
+                allCoordinates.append(CLLocationCoordinate2D(latitude: centerLat, longitude: centerLng))
+            }
+            
+            // Screen session koordinatları
+            if let screenSessions = schedule.screenSessions {
+                for session in screenSessions {
+                    if let lat = session.currentLat, let lng = session.currentLng {
+                        allCoordinates.append(CLLocationCoordinate2D(latitude: lat, longitude: lng))
+                    }
+                }
+            }
+        }
+        
+        if allCoordinates.isEmpty {
+            // Hiç koordinat yoksa varsayılan bölge
+            self.region = MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: 41.0251, longitude: 28.9934),
+                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+            )
+            return
+        }
+        
+        // Tüm koordinatları kapsayacak bölgeyi hesapla
+        let lats = allCoordinates.map { $0.latitude }
+        let lngs = allCoordinates.map { $0.longitude }
+        
+        let minLat = lats.min() ?? 41.0
+        let maxLat = lats.max() ?? 41.1
+        let minLng = lngs.min() ?? 28.9
+        let maxLng = lngs.max() ?? 29.1
+        
+        let centerLat = (minLat + maxLat) / 2
+        let centerLng = (minLng + maxLng) / 2
+        let center = CLLocationCoordinate2D(latitude: centerLat, longitude: centerLng)
+        
+        let latDelta = (maxLat - minLat) * 1.2 // 1.2 ile biraz daha genişlet
+        let lngDelta = (maxLng - minLng) * 1.2
+        
+        // Minimum span değerleri
+        let minSpan = 0.02
+        let finalLatDelta = max(latDelta, minSpan)
+        let finalLngDelta = max(lngDelta, minSpan)
+        
+        self.region = MKCoordinateRegion(
+            center: center,
+            span: MKCoordinateSpan(latitudeDelta: finalLatDelta, longitudeDelta: finalLngDelta)
+        )
+        
+        print("🔵 Tüm rotalar focus: Merkez(\(centerLat), \(centerLng)), Span(\(finalLatDelta), \(finalLngDelta))")
+        print("🔵 Koordinat aralığı: Lat(\(minLat)-\(maxLat)), Lng(\(minLng)-\(maxLng))")
     }
 }
 
