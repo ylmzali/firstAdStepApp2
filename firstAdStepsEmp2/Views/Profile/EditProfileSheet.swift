@@ -493,10 +493,7 @@ struct EditProfileSheet: View {
                    let user = data.user {
                     isUpdatingProfile = true
                     userViewModel.isUserUpdated = true
-                    print("✅ User update successfully")
-                    print("📱 User data: \(user)")
                 } else {
-                    print("❌ User update failed")
                     userViewModel.isUserUpdated = false
                 }
             case .failure:

@@ -13,7 +13,6 @@ class NavigationManager: ObservableObject {
         case otpVerification(phoneNumber: String, countryCode: String, otpRequestId: String)
         case registration(phoneNumber: String, countryCode: String)
         case home
-        case activeRoutesMap
     }
     
     enum Destination: Hashable {
@@ -22,7 +21,6 @@ class NavigationManager: ObservableObject {
         case otpVerification(phoneNumber: String, countryCode: String, otpRequestId: String)
         case registration(phoneNumber: String, countryCode: String)
         case home
-        case activeRoutesMap
     }
     
     private init() {}
@@ -60,13 +58,6 @@ class NavigationManager: ObservableObject {
         withAnimation {
             currentScreen = .home
             path.append(Destination.home)
-        }
-    }
-    
-    func goToActiveRoutesMap() {
-        withAnimation {
-            currentScreen = .activeRoutesMap
-            path.append(Destination.activeRoutesMap)
         }
     }
     

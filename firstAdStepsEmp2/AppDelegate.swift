@@ -1,16 +1,23 @@
 import UIKit
 import SwiftUI
+import UserNotifications
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        print("🚀 AppDelegate: Uygulama başlatılıyor...")
-        // Uygulama başlangıç ayarları
-        setupAppearance()
+        // Configure appearance
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor.black
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        
         return true
     }
     
     private func setupAppearance() {
-        print("🎨 AppDelegate: Görünüm ayarları yapılıyor...")
         // Navigation bar görünümü
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
@@ -29,34 +36,19 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        print("✅ AppDelegate: Device token başarıyla alındı!")
-        print("📱 Device Token Data: \(deviceToken)")
+        let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
         
-        // Push notification token'ı kaydet
-        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
-        let token = tokenParts.joined()
-        
-        print("🔑 Device Token String: \(token)")
-        print("🔑 Token Length: \(token.count) karakter")
-        
-        // SessionManager üzerinden device token'ı kaydet
+        // Save device token
         SessionManager.shared.saveDeviceToken(token)
         
-        // Eğer kullanıcı giriş yapmışsa backend'e gönder
+        // Send to backend if user is authenticated
         if SessionManager.shared.isAuthenticated {
-            print("👤 Kullanıcı giriş yapmış, device token backend'e gönderiliyor...")
             SessionManager.shared.sendDeviceTokenToBackend()
-        } else {
-            print("❌ Kullanıcı giriş yapmamış, device token backend'e gönderilmedi")
         }
-        
-        print("✅ Device token işlemi tamamlandı")
     }
     
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        print("❌ AppDelegate: Remote notification kaydı başarısız!")
-        print("❌ Hata: \(error.localizedDescription)")
-        print("❌ Hata Detayı: \(error)")
+        // Handle registration error
     }
 }
 

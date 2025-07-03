@@ -96,7 +96,6 @@ class ActiveRoutesService {
                 case 200...299:
                     do {
                         let decoder = JSONDecoder()
-                        decoder.keyDecodingStrategy = .convertFromSnakeCase
                         let result = try decoder.decode(T.self, from: data)
                         completion(.success(result))
                     } catch {

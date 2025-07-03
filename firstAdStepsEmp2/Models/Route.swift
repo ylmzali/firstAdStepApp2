@@ -21,7 +21,6 @@ enum RouteStatus: String, Codable {
         if let status = RouteStatus(rawValue: rawValue) {
             self = status
         } else {
-            print("⚠️ Unknown status received from backend: '\(rawValue)', falling back to request_received")
             self = .request_received
         }
     }
@@ -212,7 +211,7 @@ struct Route: Codable, Identifiable {
     // Decoder initializer
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-
+        
         id = try container.decode(String.self, forKey: .id)
         userId = try container.decode(String.self, forKey: .userId)
         title = try container.decode(String.self, forKey: .title)

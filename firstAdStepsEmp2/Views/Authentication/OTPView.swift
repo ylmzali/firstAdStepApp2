@@ -103,11 +103,8 @@ struct OTPView: View {
                     switch result {
                     case .success(let data):
                         if data.isUserExist == true, let user = data.user {
-                            print("✅ User verified successfully")
-                            print("📱 User data: \(user)")
                             navigationManager.goToHome()
                         } else {
-                            print("❌ User verification failed")
                             navigationManager.goToRegistration(phoneNumber: phoneNumber, countryCode: countryCode)
                         }
                     case .failure:

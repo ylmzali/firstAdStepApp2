@@ -18,6 +18,7 @@ struct ActiveSchedule: Codable, Identifiable {
     let assignedPlanId: Int?
     let assignedScreenId: Int?
     let assignedEmployeeId: Int?
+    let title: String?
     let scheduleDate: String?
     let startTime: String?
     let endTime: String?
@@ -37,30 +38,34 @@ struct ActiveSchedule: Codable, Identifiable {
     let createdAt: String?
     let screenSessions: [ScreenSession]?
     
-    enum CodingKeys: String, CodingKey {
-        case id
-        case routeId = "route_id"
-        case assignedPlanId = "assigned_plan_id"
-        case assignedScreenId = "assigned_screen_id"
-        case assignedEmployeeId = "assigned_employee_id"
-        case scheduleDate = "schedule_date"
-        case startTime = "start_time"
-        case endTime = "end_time"
-        case displayDurationMinutes = "display_duration_minutes"
-        case pricePerHour = "price_per_hour"
-        case budget
-        case routeType = "route_type"
-        case startLat = "start_lat"
-        case startLng = "start_lng"
-        case endLat = "end_lat"
-        case endLng = "end_lng"
-        case centerLat = "center_lat"
-        case centerLng = "center_lng"
-        case radiusMeters = "radius_meters"
-        case status
-        case createdBy = "created_by"
-        case createdAt = "created_at"
-        case screenSessions
+    // Custom decoder for debugging route_type field
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        id = try container.decode(Int.self, forKey: .id)
+        routeId = try container.decodeIfPresent(Int.self, forKey: .routeId)
+        assignedPlanId = try container.decodeIfPresent(Int.self, forKey: .assignedPlanId)
+        assignedScreenId = try container.decodeIfPresent(Int.self, forKey: .assignedScreenId)
+        assignedEmployeeId = try container.decodeIfPresent(Int.self, forKey: .assignedEmployeeId)
+        title = try container.decodeIfPresent(String.self, forKey: .title)
+        scheduleDate = try container.decodeIfPresent(String.self, forKey: .scheduleDate)
+        startTime = try container.decodeIfPresent(String.self, forKey: .startTime)
+        endTime = try container.decodeIfPresent(String.self, forKey: .endTime)
+        displayDurationMinutes = try container.decodeIfPresent(Int.self, forKey: .displayDurationMinutes)
+        pricePerHour = try container.decodeIfPresent(Double.self, forKey: .pricePerHour)
+        budget = try container.decodeIfPresent(Double.self, forKey: .budget)
+        routeType = try container.decodeIfPresent(String.self, forKey: .routeType)
+        startLat = try container.decodeIfPresent(Double.self, forKey: .startLat)
+        startLng = try container.decodeIfPresent(Double.self, forKey: .startLng)
+        endLat = try container.decodeIfPresent(Double.self, forKey: .endLat)
+        endLng = try container.decodeIfPresent(Double.self, forKey: .endLng)
+        centerLat = try container.decodeIfPresent(Double.self, forKey: .centerLat)
+        centerLng = try container.decodeIfPresent(Double.self, forKey: .centerLng)
+        radiusMeters = try container.decodeIfPresent(Int.self, forKey: .radiusMeters)
+        status = try container.decodeIfPresent(String.self, forKey: .status)
+        createdBy = try container.decodeIfPresent(String.self, forKey: .createdBy)
+        createdAt = try container.decodeIfPresent(String.self, forKey: .createdAt)
+        screenSessions = try container.decodeIfPresent([ScreenSession].self, forKey: .screenSessions)
     }
 }
 

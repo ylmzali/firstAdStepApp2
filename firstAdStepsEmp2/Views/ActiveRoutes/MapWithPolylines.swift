@@ -2,64 +2,65 @@ import SwiftUI
 import MapKit
 
 struct MapWithPolylines: UIViewRepresentable {
-    let region: MKCoordinateRegion
-    let annotations: [RouteMapAnnotation]
-    let directionPolylines: [MKPolyline] // Directions API'den gelen polyline
-    let sessionPolylines: [MKPolyline]   // ScreenSession'dan gelen polyline
-    let areaCircles: [MKCircle]          // Area route için çemberler
+    var region: MKCoordinateRegion
+    var annotations: [RouteMapAnnotation]
+    var polylines: [PolylineWrapper]
+    var areaCircles: [MKCircle]          // Area route için çemberler
+    var onAnnotationTap: ((RouteMapAnnotation) -> Void)? = nil
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
     
     func makeUIView(context: Context) -> MKMapView {
-        let mapView = MKMapView()
+        let mapView = MKMapView(frame: .zero)
         mapView.delegate = context.coordinator
-        mapView.showsUserLocation = true
-        mapView.showsCompass = true
-        mapView.showsScale = true
+        mapView.showsUserLocation = false
+        mapView.isRotateEnabled = false
+        mapView.isPitchEnabled = false
+        mapView.pointOfInterestFilter = .excludingAll
+        mapView.setRegion(region, animated: false)
         return mapView
     }
     
     func updateUIView(_ mapView: MKMapView, context: Context) {
+        // Debug: Polyline sayısını kontrol et
+        print("🗺️ MapWithPolylines updateUIView - Polylines count: \(polylines.count)")
+        print("🗺️ MapWithPolylines updateUIView - Annotations count: \(annotations.count)")
+        print("🗺️ MapWithPolylines updateUIView - Area circles count: \(areaCircles.count)")
+        
         // Clear overlays and annotations
         mapView.removeOverlays(mapView.overlays)
         mapView.removeAnnotations(mapView.annotations)
+        
+        // Polyline referanslarını dictionary olarak tut
+        context.coordinator.polylineToWrapper = [:]
         
         // Add annotations
         let mkAnnotations = annotations.map { annotation -> CustomAnnotation in
             let mk = CustomAnnotation()
             mk.coordinate = annotation.coordinate
             mk.title = annotation.type.rawValue
-            mk.annotationType = annotation.type
-            mk.color = annotation.color
-            mk.isLarge = annotation.isLarge
+            mk.subtitle = "Schedule \(annotation.schedule.id)"
+            mk.routeAnnotation = annotation
             return mk
         }
         mapView.addAnnotations(mkAnnotations)
         
-        // Add direction polylines (kalın, açık mavi, opacity 0.5)
-        for polyline in directionPolylines {
-            mapView.addOverlay(polyline)
-            print("🔵 Direction polyline eklendi: \(polyline.pointCount) nokta")
-        }
-        // Add session polylines (ince, koyu mavi)
-        for polyline in sessionPolylines {
-            mapView.addOverlay(polyline)
-            print("🔵 Session polyline eklendi: \(polyline.pointCount) nokta")
-        }
-        // Add area circles (mor, şeffaf)
-        for circle in areaCircles {
-            mapView.addOverlay(circle)
-            print("🔵 Area Circle haritaya eklendi: Merkez(\(circle.coordinate.latitude), \(circle.coordinate.longitude)), Radius: \(circle.radius)m")
-        }
+        // Add area circles
+        mapView.addOverlays(areaCircles)
         
-        // Set region
-        mapView.setRegion(region, animated: true)
-    }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
+        // Add polylines ve dictionary'ye ekle
+        for (index, wrapper) in polylines.enumerated() {
+            mapView.addOverlay(wrapper.polyline)
+            context.coordinator.polylineToWrapper[wrapper.polyline] = wrapper
+            print("🗺️ Polyline ekleniyor: \(index) type=\(wrapper.type), scheduleId=\(wrapper.scheduleId)")
+        }
     }
     
     class Coordinator: NSObject, MKMapViewDelegate {
         var parent: MapWithPolylines
+        var polylineToWrapper: [MKPolyline: PolylineWrapper] = [:]
         
         init(_ parent: MapWithPolylines) {
             self.parent = parent
@@ -78,25 +79,20 @@ struct MapWithPolylines: UIViewRepresentable {
             }
             
             // İkon boyutunu belirle
-            let size: CGFloat = customAnnotation.isLarge ? 40 : 20
+            let size: CGFloat = customAnnotation.isLarge ? 36 : 22
             
-            // İkon rengini belirle
-            let uiColor = UIColor(customAnnotation.color)
+            // Mavi renk paleti
+            let mainBlue = UIColor.systemBlue
+            let lightBlue = UIColor.systemBlue.withAlphaComponent(0.5)
+            let veryLightBlue = UIColor.systemBlue.withAlphaComponent(0.25)
             
-            // İkon tipini belirle
-            let imageName: String
-            switch customAnnotation.annotationType {
-            case .start:
-                imageName = "mappin.circle.fill" // Başlangıç için mappin.circle.fill
-            case .end:
-                imageName = "flag.circle.fill" // Bitiş için flag.circle.fill
-            case .waypoint:
-                imageName = "circle.fill"
-            }
-            
-            // SF Symbol kullanarak ikon oluştur
-            let config = UIImage.SymbolConfiguration(pointSize: size, weight: .medium)
-            let image = UIImage(systemName: imageName, withConfiguration: config)?.withTintColor(uiColor, renderingMode: .alwaysOriginal)
+            // Üst üste üç daire tasarımı oluştur
+            let image = createLayeredCircleImage(
+                size: size,
+                mainColor: mainBlue,
+                lightColor: lightBlue,
+                veryLightColor: veryLightBlue
+            )
             
             annotationView?.image = image
             annotationView?.annotation = annotation
@@ -104,27 +100,82 @@ struct MapWithPolylines: UIViewRepresentable {
             return annotationView
         }
         
+        // Üst üste üç daire tasarımı oluşturan fonksiyon
+        private func createLayeredCircleImage(size: CGFloat, mainColor: UIColor, lightColor: UIColor, veryLightColor: UIColor) -> UIImage {
+            let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
+            
+            return renderer.image { context in
+                let rect = CGRect(x: 0, y: 0, width: size, height: size)
+                let center = CGPoint(x: size/2, y: size/2)
+
+                // En büyük daire (en altta) - opacity 25%
+                let largestRadius = size * 0.5
+                let largestRect = CGRect(
+                    x: center.x - largestRadius,
+                    y: center.y - largestRadius,
+                    width: largestRadius * 2,
+                    height: largestRadius * 2
+                )
+                veryLightColor.setFill()
+                context.cgContext.fillEllipse(in: largestRect)
+
+                // Orta daire - opacity 50%
+                let mediumRadius = size * 0.35
+                let mediumRect = CGRect(
+                    x: center.x - mediumRadius,
+                    y: center.y - mediumRadius,
+                    width: mediumRadius * 2,
+                    height: mediumRadius * 2
+                )
+                lightColor.setFill()
+                context.cgContext.fillEllipse(in: mediumRect)
+
+                // En küçük daire (en üstte) - normal opacity
+                let smallestRadius = size * 0.2
+                let smallestRect = CGRect(
+                    x: center.x - smallestRadius,
+                    y: center.y - smallestRadius,
+                    width: smallestRadius * 2,
+                    height: smallestRadius * 2
+                )
+                mainColor.setFill()
+                context.cgContext.fillEllipse(in: smallestRect)
+            }
+        }
+
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-            if let polyline = overlay as? MKPolyline {
+            if let polyline = overlay as? MKPolyline,
+               let wrapper = polylineToWrapper[polyline] {
                 let renderer = MKPolylineRenderer(polyline: polyline)
-                // Directions API'den gelen polyline'lar
-                if parent.directionPolylines.contains(where: { $0 === polyline }) {
-                    renderer.strokeColor = UIColor.systemBlue.withAlphaComponent(0.8) // Daha görünür
-                    renderer.lineWidth = 6.0 // Biraz daha ince ama görünür
-                } else {
-                    // ScreenSession polyline'ları
-                    renderer.strokeColor = UIColor.systemGreen.withAlphaComponent(0.7) // Yeşil renk
-                    renderer.lineWidth = 3.0 // Daha kalın
+                print("🗺️ Rendering polyline: type=\(wrapper.type), scheduleId=\(wrapper.scheduleId)")
+                print("🗺️ Polyline coordinates count: \(polyline.pointCount)")
+                switch wrapper.type {
+                case .direction:
+                    renderer.strokeColor = UIColor.systemRed
+                    renderer.lineWidth = 12.0
+                    renderer.alpha = 1.0
+                    print("🗺️ Applied direction styling: red, width=12, alpha=1.0")
+                case .session:
+                    renderer.strokeColor = UIColor.systemBlue
+                    renderer.lineWidth = 3.0
+                    renderer.alpha = 0.8
+                    print("🗺️ Applied session styling: blue, width=3, alpha=0.8")
                 }
                 return renderer
-            } else if let circle = overlay as? MKCircle {
+            }
+            if let circle = overlay as? MKCircle {
                 let renderer = MKCircleRenderer(circle: circle)
-                renderer.fillColor = UIColor.systemBlue.withAlphaComponent(0.25) // Mavi, yarı saydam fill
-                renderer.strokeColor = UIColor.systemBlue.withAlphaComponent(0.8) // Mavi, opak stroke
-                renderer.lineWidth = 6.0 // Kalın çizgi
+                renderer.strokeColor = UIColor.systemBlue.withAlphaComponent(0.5)
+                renderer.fillColor = UIColor.systemBlue.withAlphaComponent(0.15)
+                renderer.lineWidth = 2.0
                 return renderer
-            } else {
-                return MKOverlayRenderer(overlay: overlay)
+            }
+            return MKOverlayRenderer(overlay: overlay)
+        }
+        
+        func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+            if let annotation = view.annotation as? CustomAnnotation, let routeAnnotation = annotation.routeAnnotation {
+                parent.onAnnotationTap?(routeAnnotation)
             }
         }
     }
@@ -137,11 +188,18 @@ struct PolylineInfo {
     let routeType: RoutePolyline.RouteType
 }
 
-// MARK: - Custom Annotation Class
-class CustomAnnotation: MKPointAnnotation {
-    var annotationType: RouteMapAnnotation.AnnotationType = .waypoint
-    var color: Color = .blue
+// Custom annotation class for map markers
+class CustomAnnotation: NSObject, MKAnnotation {
+    var coordinate: CLLocationCoordinate2D
+    var title: String?
+    var subtitle: String?
+    var routeAnnotation: RouteMapAnnotation?
     var isLarge: Bool = false
+    
+    override init() {
+        self.coordinate = CLLocationCoordinate2D()
+        super.init()
+    }
 }
 
 // MARK: - Annotation Type Extension

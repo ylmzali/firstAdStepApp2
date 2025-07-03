@@ -78,7 +78,6 @@ struct HomeView: View {
     
     private func handleNotificationTap(notification: Notification, tab: Int, type: String) {
         if let routeId = notification.userInfo?["routeId"] as? String {
-            print("\(type) bildirimi tıklandı, routeId: \(routeId)")
             selectedTab = tab // Reklamlar tab'ına git
             // TODO: Belirli rotayı açmak için ek işlemler yapılabilir
         }
@@ -86,7 +85,6 @@ struct HomeView: View {
     
     private func handlePushNotification(notification: Notification, type: String) {
         if let routeId = notification.userInfo?["routeId"] as? String {
-            print("Push notification: \(type), routeId: \(routeId)")
             // Bildirimler tab'ına git ve kullanıcıya göster
             selectedTab = 3 // Bildirimler tab'ı
         }
@@ -94,7 +92,6 @@ struct HomeView: View {
     
     private func handleDeepLink(notification: Notification) {
         if let routeId = notification.userInfo?["routeId"] as? String {
-            print("🔗 HomeView: Deep link işleniyor - Route ID: \(routeId)")
             // Reklamlar tab'ına git ve route'u göster
             selectedTab = 1
             // TODO: Belirli route'u açmak için ek işlemler
@@ -103,7 +100,6 @@ struct HomeView: View {
     
     private func handleNavigateToRoute(notification: Notification) {
         if let routeId = notification.userInfo?["routeId"] as? String {
-            print("🔗 HomeView: Route'a yönlendiriliyor - Route ID: \(routeId)")
             // Reklamlar tab'ına git ve route'u göster
             selectedTab = 1
             // TODO: Belirli route'u açmak için ek işlemler
@@ -115,6 +111,7 @@ struct HomeView: View {
 struct TabContentView: View {
     @Binding var selectedTab: Int
     @EnvironmentObject private var navigationManager: NavigationManager
+    @StateObject private var activeRoutesViewModel = ActiveRoutesViewModel()
     
     var body: some View {
         Group {
@@ -124,11 +121,8 @@ struct TabContentView: View {
             case 1:
                 RoutesView()
             case 2:
-                // Harita tab'ına tıklandığında NavigationManager'ı kullan
-                Color.clear
-                    .onAppear {
-                        navigationManager.goToActiveRoutesMap()
-                    }
+                // Harita tab'ı - direkt ActiveRoutesMapView göster
+                ActiveRoutesMapView(viewModel: activeRoutesViewModel)
             case 3:
                 NotificationListView()
             case 4:

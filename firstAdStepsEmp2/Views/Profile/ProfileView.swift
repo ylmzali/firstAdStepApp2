@@ -268,9 +268,6 @@ struct ProfileView: View {
         
         await withCheckedContinuation { continuation in
             userViewModel.refreshUserData(userId: userId, sessionManager: sessionManager) { success in
-                if !success {
-                    print("Kullanıcı bilgileri güncellenirken hata oluştu")
-                }
                 continuation.resume()
             }
         }
@@ -281,9 +278,7 @@ struct ProfileView: View {
         guard let userId = sessionManager.currentUser?.id else { return }
         
         userViewModel.refreshUserData(userId: userId, sessionManager: sessionManager) { success in
-            if !success {
-                print("Kullanıcı bilgileri güncellenirken hata oluştu")
-            }
+            // Kullanıcı bilgileri güncellendi
         }
     }
 }
