@@ -4,6 +4,7 @@ import Combine
 class AppStateManager: ObservableObject {
     static let shared = AppStateManager()
     
+    @Published var tabBarHidden: Bool = false
     @Published var isFirstLaunch: Bool
     @Published var isOnboardingCompleted: Bool
     @Published var selectedLanguage: String

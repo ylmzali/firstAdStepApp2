@@ -130,7 +130,7 @@ struct DebugView: View {
                 }
                 .padding()
             }
-            .background(Color("PrimaryBackground"))
+            .background(Color("Background"))
             .navigationTitle("Debug")
             .navigationBarTitleDisplayMode(.inline)
         }

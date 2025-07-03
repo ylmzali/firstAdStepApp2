@@ -14,7 +14,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // Navigation bar görünümü
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(Color("PrimaryBackground"))
+        appearance.backgroundColor = UIColor(Color("Background"))
         appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
         appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
         
@@ -23,7 +23,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
         
         // Tab bar görünümü
-        UITabBar.appearance().backgroundColor = UIColor(Color("PrimaryBackground"))
+        UITabBar.appearance().backgroundColor = UIColor(Color("Background"))
         UITabBar.appearance().unselectedItemTintColor = UIColor.gray
         UITabBar.appearance().tintColor = UIColor.white
     }

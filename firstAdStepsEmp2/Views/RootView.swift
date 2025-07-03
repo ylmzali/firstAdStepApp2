@@ -25,6 +25,8 @@ struct RootView: View {
             RegisterFormView(phoneNumber: phoneNumber, countryCode: countryCode)
         case .home:
             HomeView()
+        case .activeRoutesMap:
+            ActiveRoutesMapView(viewModel: ActiveRoutesViewModel())
         }
     }
     
@@ -41,6 +43,8 @@ struct RootView: View {
             RegisterFormView(phoneNumber: phoneNumber, countryCode: countryCode)
         case .home:
             HomeView()
+        case .activeRoutesMap:
+            ActiveRoutesMapView(viewModel: ActiveRoutesViewModel())
         }
     }
 }

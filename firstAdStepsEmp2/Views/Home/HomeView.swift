@@ -7,6 +7,7 @@ struct HomeView: View {
     @State private var isRefreshing = false
     @State private var showSearch = false
     @State private var searchText = ""
+    @ObservedObject var appState = AppStateManager.shared
     
     var body: some View {
         ZStack {
@@ -16,7 +17,9 @@ struct HomeView: View {
             // Custom Tab Bar - Absolute positioned at bottom
             VStack {
                 Spacer()
-                CustomTabBar(selectedTab: $selectedTab)
+                if !appState.tabBarHidden {
+                    CustomTabBar(selectedTab: $selectedTab)
+                }
             }
         }
         .navigationBarHidden(true)
@@ -85,7 +88,7 @@ struct HomeView: View {
         if let routeId = notification.userInfo?["routeId"] as? String {
             print("Push notification: \(type), routeId: \(routeId)")
             // Bildirimler tab'ına git ve kullanıcıya göster
-            selectedTab = 2 // Bildirimler tab'ı
+            selectedTab = 3 // Bildirimler tab'ı
         }
     }
     
@@ -111,6 +114,7 @@ struct HomeView: View {
 // MARK: - Tab Content View
 struct TabContentView: View {
     @Binding var selectedTab: Int
+    @EnvironmentObject private var navigationManager: NavigationManager
     
     var body: some View {
         Group {
@@ -120,8 +124,14 @@ struct TabContentView: View {
             case 1:
                 RoutesView()
             case 2:
-                NotificationListView()
+                // Harita tab'ına tıklandığında NavigationManager'ı kullan
+                Color.clear
+                    .onAppear {
+                        navigationManager.goToActiveRoutesMap()
+                    }
             case 3:
+                NotificationListView()
+            case 4:
                 ProfileView()
             default:
                 MainView(selectedTab: $selectedTab)
@@ -133,6 +143,7 @@ struct TabContentView: View {
 // MARK: - Custom Tab Bar
 struct CustomTabBar: View {
     @Binding var selectedTab: Int
+    @EnvironmentObject private var navigationManager: NavigationManager
     
     var body: some View {
         HStack(spacing: 0) {
@@ -155,19 +166,27 @@ struct CustomTabBar: View {
             }
             
             CustomTabButton(
-                title: "Bildirimler",
-                icon: "bell",
+                title: "Harita",
+                icon: "map",
                 isSelected: selectedTab == 2
             ) {
                     selectedTab = 2
             }
             
             CustomTabButton(
-                title: "Profil",
-                icon: "person",
+                title: "Bildirimler",
+                icon: "bell",
                 isSelected: selectedTab == 3
             ) {
                     selectedTab = 3
+            }
+            
+            CustomTabButton(
+                title: "Profil",
+                icon: "person",
+                isSelected: selectedTab == 4
+            ) {
+                    selectedTab = 4
             }
         }
         .padding(.horizontal, 16)

@@ -12,6 +12,11 @@ enum ServiceError: LocalizedError {
     case badRequest
     case invalidCode
     case invalidResponse
+
+    case noData
+    case encodingError
+    case decodingError
+
     case unauthorized
     
     case custom(message: String)
@@ -43,6 +48,14 @@ enum ServiceError: LocalizedError {
             return "Girilen kod hatalı"
         case .invalidResponse:
             return "Tanımlanamayan sonuç"
+            
+        case .noData:
+            return "Veri alınamadı"
+        case .decodingError:
+            return "Veri çözümlenemedi"
+        case .encodingError:
+            return "Veri şifrelenemedi"
+
         case .unauthorized:
             return "Yetkisiz erişim"
         }
@@ -74,8 +87,16 @@ enum ServiceError: LocalizedError {
             return "Sonuç okunamadı"
         case .custom(message: let message):
             return message
+
+        case .noData:
+            return "Veri alınamadı"
+        case .encodingError:
+            return "Veri şifrelenemedi"
+        case .decodingError:
+            return "Veri çözümlenemedi"
+
         case .invalidUrl:
             return "Geçersiz URL"
         }
     }
-} 
+}

@@ -19,7 +19,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // Navigation bar görünümü
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(Color("PrimaryBackground"))
+        appearance.backgroundColor = UIColor(Color("Background"))
         appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
         appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
         
